@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { api } from "~/convex/_generated/api";
+import { Id } from "~/convex/_generated/dataModel";
 import { toast } from "sonner";
 
 interface AuctionDetailsProps {
@@ -66,7 +66,7 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
   if (!auctionDetails) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
       </div>
     );
   }
@@ -75,32 +75,32 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
   const isOwner = currentUser?._id === auctionDetails.auctioneerId;
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl">
       <button
         onClick={onBack}
-        className="mb-6 text-blue-600 hover:text-blue-700 font-medium"
+        className="mb-6 font-medium text-blue-600 hover:text-blue-700"
       >
         ← Back to Auctions
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           {auctionDetails.imageUrl && (
-            <div className="aspect-square overflow-hidden rounded-lg">
+            <div className="overflow-hidden rounded-lg aspect-square">
               <img 
                 src={auctionDetails.imageUrl} 
                 alt={auctionDetails.title}
-                className="w-full h-full object-cover"
+                className="object-cover w-full h-full"
               />
             </div>
           )}
 
           {auctionDetails.videoUrl && (
-            <div className="aspect-video overflow-hidden rounded-lg">
+            <div className="overflow-hidden rounded-lg aspect-video">
               <video 
                 src={auctionDetails.videoUrl} 
                 controls
-                className="w-full h-full object-cover"
+                className="object-cover w-full h-full"
               />
             </div>
           )}
@@ -108,12 +108,12 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
 
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{auctionDetails.title}</h1>
-            <p className="text-gray-600 mb-4">{auctionDetails.description}</p>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900">{auctionDetails.title}</h1>
+            <p className="mb-4 text-gray-600">{auctionDetails.description}</p>
             <p className="text-sm text-gray-500">by {auctionDetails.auctioneer}</p>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+          <div className="p-4 space-y-3 bg-gray-50 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="text-lg font-medium text-gray-700">Current Bid</span>
               <span className="text-2xl font-bold text-green-600">
@@ -152,14 +152,14 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
           </div>
 
           {auctionDetails.isLocked && (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+            <div className="px-4 py-3 text-yellow-700 bg-yellow-100 rounded border border-yellow-400">
               Auction temporarily locked for bid processing
             </div>
           )}
 
           {auctionDetails.status === "completed" && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-medium text-blue-900 mb-2">Auction Completed</h3>
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="mb-2 font-medium text-blue-900">Auction Completed</h3>
               <p className="text-sm text-blue-700">
                 This auction has ended and the winning bid has been automatically accepted.
               </p>
@@ -175,26 +175,26 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
                 placeholder={`Minimum bid: $${(auctionDetails.currentBid + 1).toLocaleString()}`}
                 min={auctionDetails.currentBid + 1}
                 step="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-3 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
               <button
                 type="submit"
-                className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-medium"
+                className="px-4 py-3 w-full font-medium text-white bg-green-600 rounded-md transition-colors hover:bg-green-700"
               >
                 Place Bid
               </button>
             </form>
           )}
 
-          <div className="border-t pt-4 mt-6">
-            <h3 className="font-medium text-gray-900 mb-3">Recent Bids</h3>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="pt-4 mt-6 border-t">
+            <h3 className="mb-3 font-medium text-gray-900">Recent Bids</h3>
+            <div className="overflow-y-auto space-y-2 max-h-64">
               {auctionDetails.bidHistory.length === 0 ? (
-                <p className="text-gray-500 text-sm">No bids yet</p>
+                <p className="text-sm text-gray-500">No bids yet</p>
               ) : (
                 auctionDetails.bidHistory.map((bid) => (
-                  <div key={bid._id} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                  <div key={bid._id} className="flex justify-between items-center px-3 py-2 bg-gray-50 rounded">
                     <span className="text-sm font-medium">{bid.bidderName}</span>
                     <div className="text-right">
                       <span className="text-sm font-bold">${bid.amount.toLocaleString()}</span>

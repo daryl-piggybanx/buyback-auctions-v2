@@ -19,7 +19,6 @@ const applicationTables = {
     requesterId: v.id("users"),
     title: v.string(),
     description: v.string(),
-    suggestedStartingPrice: v.optional(v.number()),
     status: v.union(
       v.literal("pending"),
       v.literal("approved"),

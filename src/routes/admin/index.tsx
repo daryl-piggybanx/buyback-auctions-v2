@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AdminPanel } from '../../components/AdminPanel'
-import { AuthRequired } from '../../components/AuthRequired'
+import { AdminPanel } from '~/components/admin/AdminPanel'
+import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,
@@ -8,7 +8,7 @@ export const Route = createFileRoute('/admin/')({
 
 function AdminPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="px-4 py-8 mx-auto max-w-7xl">
       <AuthRequired>
         <AdminPanel />
       </AuthRequired>

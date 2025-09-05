@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { api } from '~/convex/_generated/api';
 
 export function ProfileManager({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useConvexAuth();

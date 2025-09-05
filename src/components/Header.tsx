@@ -1,5 +1,5 @@
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 import { SignOutButton } from "./auth/SignOutButton";
 import { Link, useLocation } from '@tanstack/react-router'
 

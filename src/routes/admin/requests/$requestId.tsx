@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from 'convex/react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
-import { AuthRequired } from '../../../components/AuthRequired'
+import { api } from '~/convex/_generated/api'
+import { Id } from '~/convex/_generated/dataModel'
+import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/admin/requests/$requestId')({
   component: AdminRequestDetailPage,
@@ -17,9 +17,9 @@ function AdminRequestDetailPage() {
 
   if (request === undefined || userProfile === undefined) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="px-4 py-8 mx-auto max-w-4xl">
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
         </div>
       </div>
     )
@@ -27,9 +27,9 @@ function AdminRequestDetailPage() {
 
   if (!userProfile?.isAdmin) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+      <div className="px-4 py-8 mx-auto max-w-4xl">
+        <div className="py-12 text-center">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Access Denied</h2>
           <p className="text-gray-600">You don't have permission to view this page.</p>
         </div>
       </div>
@@ -38,9 +38,9 @@ function AdminRequestDetailPage() {
 
   if (request === null) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Request Not Found</h2>
+      <div className="px-4 py-8 mx-auto max-w-4xl">
+        <div className="py-12 text-center">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Request Not Found</h2>
           <p className="text-gray-600">The auction request you're looking for doesn't exist.</p>
         </div>
       </div>
@@ -49,31 +49,31 @@ function AdminRequestDetailPage() {
 
   return (
     <AuthRequired>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="px-4 py-8 mx-auto max-w-4xl">
         <div className="mb-6">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+          <div className="flex gap-2 items-center mb-2 text-sm text-gray-600">
             <span>Admin Panel</span>
             <span>→</span>
             <span>Auction Requests</span>
             <span>→</span>
-            <span className="text-gray-900 font-medium">{request.title}</span>
+            <span className="font-medium text-gray-900">{request.title}</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Admin View: {request.title}</h1>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
               {request.imageUrl && (
                 <img 
                   src={request.imageUrl} 
                   alt={request.title}
-                  className="w-full h-64 object-cover rounded-lg mb-4"
+                  className="object-cover mb-4 w-full h-64 rounded-lg"
                 />
               )}
               
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{request.title}</h2>
-              <p className="text-gray-600 mb-6">{request.description}</p>
+              <h2 className="mb-4 text-xl font-bold text-gray-900">{request.title}</h2>
+              <p className="mb-6 text-gray-600">{request.description}</p>
               
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -94,7 +94,7 @@ function AdminRequestDetailPage() {
                 
                 <div className="flex justify-between">
                   <span className="font-medium text-gray-700">Request ID:</span>
-                  <span className="text-gray-900 font-mono text-sm">{request._id}</span>
+                  <span className="font-mono text-sm text-gray-900">{request._id}</span>
                 </div>
                 
                 {request.artPiece?.category && (
@@ -111,12 +111,6 @@ function AdminRequestDetailPage() {
                   </div>
                 )}
                 
-                {request.suggestedStartingPrice && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Suggested Price:</span>
-                    <span className="text-gray-900">${request.suggestedStartingPrice.toLocaleString()}</span>
-                  </div>
-                )}
                 
                 <div className="flex justify-between">
                   <span className="font-medium text-gray-700">Submitted:</span>
@@ -126,33 +120,33 @@ function AdminRequestDetailPage() {
             </div>
             
             <div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <h3 className="font-medium text-blue-900 mb-2">Admin Actions</h3>
-                <p className="text-blue-800 text-sm mb-3">
+              <div className="p-4 mb-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="mb-2 font-medium text-blue-900">Admin Actions</h3>
+                <p className="mb-3 text-sm text-blue-800">
                   Use the main admin panel to approve or reject this request.
                 </p>
                 <button 
                   onClick={() => window.history.back()}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
                 >
                   ← Back to Admin Panel
                 </button>
               </div>
               
               {request.adminNotes && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-                  <h3 className="font-medium text-gray-900 mb-2">Admin Notes</h3>
-                  <p className="text-gray-700 text-sm">{request.adminNotes}</p>
+                <div className="p-4 mb-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="mb-2 font-medium text-gray-900">Admin Notes</h3>
+                  <p className="text-sm text-gray-700">{request.adminNotes}</p>
                 </div>
               )}
               
               {request.status === 'approved' && request.auctionId && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="font-medium text-green-900 mb-2">Auction Created</h3>
-                  <p className="text-green-800 text-sm mb-3">
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <h3 className="mb-2 font-medium text-green-900">Auction Created</h3>
+                  <p className="mb-3 text-sm text-green-800">
                     This request has been approved and an auction has been created.
                   </p>
-                  <p className="text-green-700 text-xs font-mono">
+                  <p className="font-mono text-xs text-green-700">
                     Auction ID: {request.auctionId}
                   </p>
                 </div>

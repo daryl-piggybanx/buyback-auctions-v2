@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AuctionDashboard } from '../components/AuctionDashboard'
+import { AuctionDashboard } from '~/components/AuctionDashboard'
 
 export const Route = createFileRoute('/auctions')({
   component: AuctionsPage,
@@ -7,7 +7,7 @@ export const Route = createFileRoute('/auctions')({
 
 function AuctionsPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="px-4 py-8 mx-auto max-w-7xl">
       <AuctionDashboard />
     </div>
   )

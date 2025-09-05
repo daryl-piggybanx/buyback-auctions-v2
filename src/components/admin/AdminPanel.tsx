@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 import { toast } from "sonner";
-import { Id } from "../../convex/_generated/dataModel";
+import { Id } from "~/convex/_generated/dataModel";
 import { Link } from '@tanstack/react-router';
-import { DuplicateUsersManager } from "./DuplicateUsersManager";
+import { DuplicateUsersManager } from "~/components/DuplicateUsersManager";
 
 export function AdminPanel() {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);

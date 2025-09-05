@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from 'convex/react'
-import { api } from '../../../convex/_generated/api'
-import { Id } from '../../../convex/_generated/dataModel'
-import { AuthRequired } from '../../components/AuthRequired'
+import { api } from '~/convex/_generated/api'
+import { Id } from '~/convex/_generated/dataModel'
+import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/requests/$requestId')({
   component: RequestDetailPage,
@@ -16,9 +16,9 @@ function RequestDetailPage() {
 
   if (request === undefined) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="px-4 py-8 mx-auto max-w-4xl">
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
         </div>
       </div>
     )
@@ -26,9 +26,9 @@ function RequestDetailPage() {
 
   if (request === null) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Request Not Found</h2>
+      <div className="px-4 py-8 mx-auto max-w-4xl">
+        <div className="py-12 text-center">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Request Not Found</h2>
           <p className="text-gray-600">The auction request you're looking for doesn't exist.</p>
         </div>
       </div>
@@ -37,20 +37,20 @@ function RequestDetailPage() {
 
   return (
     <AuthRequired>
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="px-4 py-8 mx-auto max-w-4xl">
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
               {request.imageUrl && (
                 <img 
                   src={request.imageUrl} 
                   alt={request.title}
-                  className="w-full h-64 object-cover rounded-lg mb-4"
+                  className="object-cover mb-4 w-full h-64 rounded-lg"
                 />
               )}
               
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">{request.title}</h1>
-              <p className="text-gray-600 mb-6">{request.description}</p>
+              <h1 className="mb-4 text-2xl font-bold text-gray-900">{request.title}</h1>
+              <p className="mb-6 text-gray-600">{request.description}</p>
               
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -83,12 +83,6 @@ function RequestDetailPage() {
                   </div>
                 )}
                 
-                {request.suggestedStartingPrice && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Suggested Price:</span>
-                    <span className="text-gray-900">${request.suggestedStartingPrice.toLocaleString()}</span>
-                  </div>
-                )}
                 
                 <div className="flex justify-between">
                   <span className="font-medium text-gray-700">Submitted:</span>
@@ -99,16 +93,16 @@ function RequestDetailPage() {
             
             <div>
               {request.adminNotes && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <h3 className="font-medium text-blue-900 mb-2">Admin Notes</h3>
-                  <p className="text-blue-800 text-sm">{request.adminNotes}</p>
+                <div className="p-4 mb-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h3 className="mb-2 font-medium text-blue-900">Admin Notes</h3>
+                  <p className="text-sm text-blue-800">{request.adminNotes}</p>
                 </div>
               )}
               
               {request.status === 'approved' && request.auctionId && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="font-medium text-green-900 mb-2">Auction Approved & Scheduled</h3>
-                  <div className="text-green-800 text-sm space-y-1 mb-3">
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <h3 className="mb-2 font-medium text-green-900">Auction Approved & Scheduled</h3>
+                  <div className="mb-3 space-y-1 text-sm text-green-800">
                     <p>Your request has been approved and an auction has been scheduled.</p>
                     {request.auction && (
                       <>
@@ -120,7 +114,7 @@ function RequestDetailPage() {
                   </div>
                   <a 
                     href={`/auctions/${request.auctionId}`}
-                    className="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+                    className="inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md transition-colors hover:bg-green-700"
                   >
                     View Auction
                   </a>
@@ -128,9 +122,9 @@ function RequestDetailPage() {
               )}
               
               {request.status === 'rejected' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <h3 className="font-medium text-red-900 mb-2">Request Rejected</h3>
-                  <p className="text-red-800 text-sm">
+                <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                  <h3 className="mb-2 font-medium text-red-900">Request Rejected</h3>
+                  <p className="text-sm text-red-800">
                     Unfortunately, your auction request was not approved.
                   </p>
                 </div>

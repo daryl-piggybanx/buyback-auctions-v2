@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { api } from "~/convex/_generated/api";
+import { Id } from "~/convex/_generated/dataModel";
 import { toast } from "sonner";
 
 interface AuctionCardProps {
@@ -96,21 +96,21 @@ export function AuctionCard({ auction }: AuctionCardProps) {
   const isScheduled = auction.status === "draft" && timeToStart > 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="overflow-hidden bg-white rounded-lg shadow-md transition-shadow hover:shadow-lg">
       {auction.imageUrl && (
-        <div className="aspect-square overflow-hidden relative">
+        <div className="overflow-hidden relative aspect-square">
           <img 
             src={auction.imageUrl} 
             alt={auction.title}
-            className="w-full h-full object-cover"
+            className="object-cover w-full h-full"
           />
           {userProfile && (
             <button
               onClick={handleToggleFavorite}
               className={`absolute top-2 right-2 p-2 rounded-full transition-colors ${
                 isFavorited 
-                  ? "bg-red-500 text-white hover:bg-red-600" 
-                  : "bg-white/80 text-gray-600 hover:bg-white hover:text-red-500"
+                  ? "text-white bg-red-500 hover:bg-red-600" 
+                  : "text-gray-600 bg-white/80 hover:bg-white hover:text-red-500"
               }`}
             >
               <svg className="w-5 h-5" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -123,14 +123,14 @@ export function AuctionCard({ auction }: AuctionCardProps) {
       
       <div className="p-4 space-y-3">
         <div>
-          <h3 className="font-semibold text-lg text-gray-900 truncate">{auction.title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 truncate">{auction.title}</h3>
           <p className="text-sm text-gray-600">by @{auction.auctioneer}</p>
         </div>
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Current Bid</span>
-            <span className="font-bold text-lg text-green-600">
+            <span className="text-lg font-bold text-green-600">
               ${auction.currentBid.toLocaleString()}
             </span>
           </div>
@@ -153,13 +153,13 @@ export function AuctionCard({ auction }: AuctionCardProps) {
         </div>
 
         {auction.isLocked && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 py-2 rounded text-sm">
+          <div className="px-3 py-2 text-sm text-yellow-700 bg-yellow-100 rounded border border-yellow-400">
             Auction temporarily locked for bid processing
           </div>
         )}
 
         {isScheduled && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded text-sm">
+          <div className="px-3 py-2 text-sm text-blue-700 bg-blue-50 rounded border border-blue-200">
             <p className="font-medium">Auction Scheduled</p>
             <p>This auction will start in {formatTime(timeToStart)}</p>
           </div>
@@ -176,7 +176,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
                   }
                   setShowBidForm(true);
                 }}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                className="px-4 py-2 w-full font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
               >
                 {userProfile ? "Place Bid" : "Sign In to Bid"}
               </button>
@@ -189,20 +189,20 @@ export function AuctionCard({ auction }: AuctionCardProps) {
                   placeholder={`Min: $${(auction.currentBid + 1).toLocaleString()}`}
                   min={auction.currentBid + 1}
                   step="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium"
+                    className="flex-1 px-4 py-2 font-medium text-white bg-green-600 rounded-md transition-colors hover:bg-green-700"
                   >
                     Bid ${bidAmount || "0"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowBidForm(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 rounded-md border border-gray-300 transition-colors hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -213,7 +213,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
         )}
 
         {!userProfile && (
-          <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-700">
+          <div className="p-3 text-sm text-blue-700 bg-blue-50 rounded border border-blue-200">
             <p className="font-medium">Create a profile to participate</p>
             <p>You can view auctions anonymously, but need a profile to bid or favorite auctions.</p>
           </div>

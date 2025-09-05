@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { EnhancedSignIn } from '../components/EnhancedSignIn'
+import { EnhancedSignIn } from '~/components/auth/EnhancedSignIn'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
@@ -18,7 +18,7 @@ function AuthPage() {
       </Authenticated>
       <Unauthenticated>
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+          <div className="p-8 w-full max-w-md bg-white rounded-lg shadow-md">
             <EnhancedSignIn />
           </div>
         </div>
@@ -37,7 +37,7 @@ function AuthenticatedRedirect() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <div className="mx-auto mb-4 w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
         <p className="text-gray-600">Redirecting...</p>
       </div>
     </div>

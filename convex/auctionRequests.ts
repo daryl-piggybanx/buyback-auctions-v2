@@ -59,7 +59,6 @@ export const createAuctionRequest = mutation({
       artPieceId: artPieceId,
       title: args.title,
       description: args.description,
-      suggestedStartingPrice: args.suggestedStartingPrice,
       status: "pending",
     });
 

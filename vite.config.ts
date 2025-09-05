@@ -38,8 +38,27 @@ window.addEventListener('message', async (message) => {
     // End of code for taking screenshots on chef.convex.dev.
   ].filter(Boolean),
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    alias: [
+      {
+        find: /^~\/convex\/(.*)$/,
+        replacement: path.resolve(__dirname, "./convex/$1"),
+      },
+      {
+        find: /^~\/components\/(.*)$/,
+        replacement: path.resolve(__dirname, "./src/components/$1"),
+      },
+      {
+        find: /^~\/lib\/(.*)$/,
+        replacement: path.resolve(__dirname, "./src/lib/$1"),
+      },
+      {
+        find: /^~\/routes\/(.*)$/,
+        replacement: path.resolve(__dirname, "./src/routes/$1"),
+      },
+      {
+        find: /^~\/(.*)$/,
+        replacement: path.resolve(__dirname, "./src/$1"),
+      },
+    ],
   },
 }));

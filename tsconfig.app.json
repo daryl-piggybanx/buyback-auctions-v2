@@ -21,8 +21,13 @@
     "noUncheckedSideEffectImports": true,
 
     /* Import paths */
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "~/convex/*": ["./convex/*"],
+      "~/components/*": ["./src/components/*"],
+      "~/lib/*": ["./src/lib/*"],
+      "~/routes/*": ["./src/routes/*"]
     }
   },
   "include": ["src"],

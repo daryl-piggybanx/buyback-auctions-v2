@@ -7,11 +7,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "convex/*": ["./convex/*"],
-      "components/*": ["./src/components/*"],
-      "lib/*": ["./src/lib/*"],
-      "routes/*": ["./src/routes/*"]
+      "~/*": ["./src/*"],
+      "~/convex/*": ["./convex/*"],
+      "~/components/*": ["./src/components/*"],
+      "~/lib/*": ["./src/lib/*"],
+      "~/routes/*": ["./src/routes/*"]
     }
   }
 }

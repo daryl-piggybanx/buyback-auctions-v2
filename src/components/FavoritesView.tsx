@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 import { AuctionCard } from "./AuctionCard";
 
 export function FavoritesView() {
@@ -8,7 +8,7 @@ export function FavoritesView() {
   if (favorites === undefined) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
       </div>
     );
   }
@@ -21,17 +21,17 @@ export function FavoritesView() {
       </div>
 
       {favorites.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">💝</div>
-          <p className="text-gray-500 text-lg mb-2">No favorite auctions yet</p>
+        <div className="py-12 text-center">
+          <div className="mb-4 text-6xl">💝</div>
+          <p className="mb-2 text-lg text-gray-500">No favorite auctions yet</p>
           <p className="text-gray-400">Click the heart icon on auctions to add them to your favorites!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {favorites.filter(auction => auction !== null).map((auction) => (
             <div key={auction!._id} className="relative">
               <AuctionCard auction={auction!} />
-              <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+              <div className="absolute top-2 left-2 px-2 py-1 text-xs font-medium text-white bg-red-500 rounded">
                 Favorited {new Date((auction as any).favoritedAt).toLocaleDateString()}
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 import { toast } from "sonner";
 import { ProfileSetup } from "./ProfileSetup";
 
@@ -72,7 +72,7 @@ export function UserProfile() {
   if (userProfile === undefined) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
       </div>
     );
   }
@@ -83,13 +83,13 @@ export function UserProfile() {
 
   if (isCreating) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Profile</h2>
+      <div className="mx-auto max-w-2xl">
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Create Profile</h2>
           
           <form onSubmit={handleCreateProfile} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Username * <span className="text-xs text-gray-500">(visible to other users)</span>
               </label>
               <input
@@ -106,49 +106,49 @@ export function UserProfile() {
                 minLength={3}
               />
               {usernameError && (
-                <p className="text-red-600 text-sm mt-1">{usernameError}</p>
+                <p className="mt-1 text-sm text-red-600">{usernameError}</p>
               )}
               {username.length >= 3 && !usernameError && checkUsername === true && (
-                <p className="text-green-600 text-sm mt-1">✓ Username is available</p>
+                <p className="mt-1 text-sm text-green-600">✓ Username is available</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Display Name *
               </label>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Your full name or preferred display name"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Bio
               </label>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Tell us about yourself..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Location
               </label>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="City, Country"
               />
             </div>
@@ -157,14 +157,14 @@ export function UserProfile() {
               <button
                 type="submit"
                 disabled={!!usernameError || !username || !displayName}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Profile
               </button>
               <button
                 type="button"
                 onClick={() => setIsCreating(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 rounded-md border border-gray-300 transition-colors hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -177,12 +177,12 @@ export function UserProfile() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile</h2>
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="mb-4 text-2xl font-bold text-gray-900">Profile</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Personal Information</h3>
+            <h3 className="mb-2 text-lg font-medium text-gray-900">Personal Information</h3>
             <div className="space-y-2">
               <p><span className="font-medium">Username:</span> @{userProfile?.username}</p>
               <p><span className="font-medium">Display Name:</span> {userProfile?.displayName}</p>
@@ -197,7 +197,7 @@ export function UserProfile() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Statistics</h3>
+            <h3 className="mb-2 text-lg font-medium text-gray-900">Statistics</h3>
             <div className="space-y-2">
               <p><span className="font-medium">Total Bids:</span> {userProfile?.totalBids}</p>
               <p><span className="font-medium">Auctions Won:</span> {userProfile?.totalWins}</p>
@@ -209,20 +209,20 @@ export function UserProfile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">My Auctions</h3>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h3 className="mb-4 text-lg font-bold text-gray-900">My Auctions</h3>
           {userAuctions === undefined ? (
-            <div className="animate-pulse space-y-2">
+            <div className="space-y-2 animate-pulse">
               <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="w-3/4 h-4 bg-gray-200 rounded"></div>
             </div>
           ) : userAuctions.length === 0 ? (
             <p className="text-gray-500">No auctions created yet</p>
           ) : (
             <div className="space-y-3">
               {userAuctions.slice(0, 5).map((auction) => (
-                <div key={auction._id} className="border border-gray-200 rounded p-3">
+                <div key={auction._id} className="p-3 rounded border border-gray-200">
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-medium text-gray-900">{auction.title}</h4>
@@ -244,19 +244,19 @@ export function UserProfile() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">My Bids</h3>
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h3 className="mb-4 text-lg font-bold text-gray-900">My Bids</h3>
           {userBids === undefined ? (
-            <div className="animate-pulse space-y-2">
+            <div className="space-y-2 animate-pulse">
               <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="w-3/4 h-4 bg-gray-200 rounded"></div>
             </div>
           ) : userBids.length === 0 ? (
             <p className="text-gray-500">No bids placed yet</p>
           ) : (
             <div className="space-y-3">
               {userBids.slice(0, 5).map((bid) => (
-                <div key={bid._id} className="border border-gray-200 rounded p-3">
+                <div key={bid._id} className="p-3 rounded border border-gray-200">
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-medium text-gray-900">{bid.auction?.title}</h4>

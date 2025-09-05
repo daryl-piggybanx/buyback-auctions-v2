@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 
 export function NotificationCenter() {
   const notifications = useQuery(api.notifications.getUserNotifications);
@@ -16,13 +16,13 @@ export function NotificationCenter() {
   if (notifications === undefined) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       <div className="bg-white rounded-lg shadow-md">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
@@ -43,7 +43,7 @@ export function NotificationCenter() {
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex gap-2 items-center mb-1">
                       <h3 className="font-medium text-gray-900">{notification.title}</h3>
                       {!notification.isRead && (
                         <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
@@ -56,8 +56,8 @@ export function NotificationCenter() {
                         {notification.priority}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm">{notification.message}</p>
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-sm text-gray-600">{notification.message}</p>
+                    <p className="mt-2 text-xs text-gray-400">
                       {new Date(notification._creationTime).toLocaleString()}
                     </p>
                   </div>
@@ -65,7 +65,7 @@ export function NotificationCenter() {
                   {!notification.isRead && (
                     <button
                       onClick={() => handleMarkRead(notification._id)}
-                      className="ml-4 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      className="ml-4 text-sm font-medium text-blue-600 hover:text-blue-700"
                     >
                       Mark Read
                     </button>

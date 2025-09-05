@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 import { toast } from "sonner";
-import { DatePicker } from "./DatePicker";
-import { collectionCategories } from "@/lib/data";
+import { DatePicker } from "~/components/DatePicker";
+import { collectionCategories } from "~/lib/data";
 
 export function CreateAuctionRequestForm() {
   const [step, setStep] = useState<"art-piece" | "request">("art-piece");

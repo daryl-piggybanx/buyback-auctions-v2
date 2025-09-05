@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AdminRequestsManagement } from '../../../components/AdminRequestsManagement'
-import { AuthRequired } from '../../../components/AuthRequired'
+import { AdminRequestsManagement } from '~/components/admin/AdminRequestsManagement'
+import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/admin/requests/')({
   component: AdminRequestsPage,
@@ -8,7 +8,7 @@ export const Route = createFileRoute('/admin/requests/')({
 
 function AdminRequestsPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="px-4 py-8 mx-auto max-w-7xl">
       <AuthRequired>
         <AdminRequestsManagement />
       </AuthRequired>

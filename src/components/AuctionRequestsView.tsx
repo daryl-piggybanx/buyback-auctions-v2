@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~/convex/_generated/api";
 import { Link } from '@tanstack/react-router';
 
 export function AuctionRequestsView() {
@@ -101,9 +101,6 @@ export function AuctionRequestsView() {
                 <div className="flex justify-between items-center">
                   <div className="flex gap-4 items-center text-sm text-gray-500">
                     <span>Submitted {new Date(request._creationTime).toLocaleDateString()}</span>
-                    {request.suggestedStartingPrice && (
-                      <span>Suggested: ${request.suggestedStartingPrice.toLocaleString()}</span>
-                    )}
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                     request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { NotificationCenter } from '../components/NotificationCenter'
-import { AuthRequired } from '../components/AuthRequired'
+import { NotificationCenter } from '~/components/NotificationCenter'
+import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/notifications')({
   component: NotificationsPage,
@@ -8,7 +8,7 @@ export const Route = createFileRoute('/notifications')({
 
 function NotificationsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="px-4 py-8 mx-auto max-w-4xl">
       <AuthRequired>
         <NotificationCenter />
       </AuthRequired>
