@@ -59,6 +59,8 @@ const applicationTables = {
     shippingDeadline: v.optional(v.number()),
     flaggedCount: v.number(),
     auctionRequestId: v.optional(v.id("auctionRequests")),
+    cancelledAt: v.optional(v.number()),
+    cancelledBy: v.optional(v.id("users")),
   })
     .index("by_status", ["status"])
     .index("by_auctioneer", ["auctioneerId"])
@@ -111,10 +113,12 @@ const applicationTables = {
       v.literal("bid_outbid"),
       v.literal("auction_won"),
       v.literal("auction_ended"),
+      v.literal("auction_started"),
       v.literal("payment_due"),
       v.literal("shipping_due"),
       v.literal("auction_request_approved"),
-      v.literal("auction_request_rejected")
+      v.literal("auction_request_rejected"),
+      v.literal("auction_cancelled")
     ),
     title: v.string(),
     message: v.string(),

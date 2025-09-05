@@ -3,7 +3,7 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { Toaster } from "sonner";
 import { Header } from '~/components/Header'
-import { ProfileManager } from '~/components/ProfileManager'
+import { ProfileManager } from '~/components/profile/ProfileManager'
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 

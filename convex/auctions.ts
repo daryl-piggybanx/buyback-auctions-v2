@@ -415,6 +415,11 @@ export const checkExpiredAuctions = internalAction({
       currentTime: now,
     });
 
+    // Get all draft auctions that should start
+    const startingAuctions: Id<"auctions">[] = await ctx.runQuery(internal.auctions.getStartingAuctions, {
+      currentTime: now,
+    });
+
     // Process each expired auction
     for (const auctionId of expiredAuctions) {
       await ctx.runMutation(internal.auctions.endAuction, {
@@ -422,7 +427,14 @@ export const checkExpiredAuctions = internalAction({
       });
     }
 
-    return { processed: expiredAuctions.length };
+    // Process each starting auction
+    for (const auctionId of startingAuctions) {
+      await ctx.runMutation(internal.auctions.startAuction, {
+        auctionId,
+      });
+    }
+
+    return { processed: expiredAuctions.length + startingAuctions.length };
   },
 });
 
@@ -444,5 +456,222 @@ export const getExpiredAuctions = internalQuery({
     }
 
     return expiredAuctionIds;
+  },
+});
+
+export const archiveAuction = mutation({
+  args: {
+    auctionId: v.id("auctions"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Admin access required");
+    }
+
+    // Check if user is admin
+    const userProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    
+    if (!userProfile?.isAdmin) {
+      throw new Error("Admin access required");
+    }
+
+    const auction = await ctx.db.get(args.auctionId);
+    if (!auction) {
+      throw new Error("Auction not found");
+    }
+
+    // Only allow archiving of active or draft auctions
+    if (auction.status !== "active" && auction.status !== "draft") {
+      throw new Error("Only active or draft auctions can be archived");
+    }
+
+    // Update auction status to cancelled
+    await ctx.db.patch(args.auctionId, {
+      status: "cancelled",
+      cancelledAt: Date.now(),
+      cancelledBy: userId,
+    });
+
+    // Notify the auctioneer
+    await ctx.db.insert("notifications", {
+      userId: auction.auctioneerId,
+      type: "auction_cancelled",
+      title: "Auction Cancelled",
+      message: `Your auction "${auction.title}" has been cancelled by an administrator.`,
+      auctionId: args.auctionId,
+      isRead: false,
+      priority: "high",
+    });
+
+    // If there was a current bidder, notify them too
+    if (auction.currentBidderId) {
+      await ctx.db.insert("notifications", {
+        userId: auction.currentBidderId,
+        type: "auction_cancelled",
+        title: "Auction Cancelled",
+        message: `The auction "${auction.title}" you were bidding on has been cancelled.`,
+        auctionId: args.auctionId,
+        isRead: false,
+        priority: "high",
+      });
+    }
+
+    return { success: true };
+  },
+});
+
+export const updateAuction = mutation({
+  args: {
+    auctionId: v.id("auctions"),
+    startingPrice: v.number(),
+    startTime: v.number(),
+    endTime: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Admin access required");
+    }
+
+    // Check if user is admin
+    const userProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    
+    if (!userProfile?.isAdmin) {
+      throw new Error("Admin access required");
+    }
+
+    const auction = await ctx.db.get(args.auctionId);
+    if (!auction) {
+      throw new Error("Auction not found");
+    }
+
+    // Update the auction
+    await ctx.db.patch(args.auctionId, {
+      startingPrice: args.startingPrice,
+      startTime: args.startTime,
+      endTime: args.endTime,
+    });
+
+    return { success: true };
+  },
+});
+
+export const deleteAuction = mutation({
+  args: {
+    auctionId: v.id("auctions"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Admin access required");
+    }
+
+    // Check if user is admin
+    const userProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    
+    if (!userProfile?.isAdmin) {
+      throw new Error("Admin access required");
+    }
+
+    const auction = await ctx.db.get(args.auctionId);
+    if (!auction) {
+      throw new Error("Auction not found");
+    }
+
+    // Only allow deletion of cancelled or ended auctions
+    if (auction.status !== "cancelled" && auction.status !== "ended") {
+      throw new Error("Only cancelled or ended auctions can be deleted");
+    }
+
+    // Delete all related bids
+    const bids = await ctx.db
+      .query("bids")
+      .withIndex("by_auction", (q) => q.eq("auctionId", args.auctionId))
+      .collect();
+
+    for (const bid of bids) {
+      await ctx.db.delete(bid._id);
+    }
+
+    // Delete all related notifications
+    const notifications = await ctx.db
+      .query("notifications")
+      .filter((q) => q.eq(q.field("auctionId"), args.auctionId))
+      .collect();
+
+    for (const notification of notifications) {
+      await ctx.db.delete(notification._id);
+    }
+
+    // Delete any related transactions
+    const transactions = await ctx.db
+      .query("transactions")
+      .filter((q) => q.eq(q.field("auctionId"), args.auctionId))
+      .collect();
+
+    for (const transaction of transactions) {
+      await ctx.db.delete(transaction._id);
+    }
+
+    // Finally, delete the auction itself
+    await ctx.db.delete(args.auctionId);
+
+    return { success: true };
+  },
+});
+
+export const getStartingAuctions = internalQuery({
+  args: { currentTime: v.number() },
+  returns: v.array(v.id("auctions")),
+  handler: async (ctx, args) => {
+    const draftAuctions = await ctx.db
+      .query("auctions")
+      .withIndex("by_status", (q) => q.eq("status", "draft"))
+      .collect();
+
+    return draftAuctions
+      .filter(auction => auction.startTime <= args.currentTime)
+      .map(auction => auction._id);
+  },
+});
+
+export const startAuction = internalMutation({
+  args: { auctionId: v.id("auctions") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const auction = await ctx.db.get(args.auctionId);
+    if (!auction) {
+      throw new Error("Auction not found");
+    }
+
+    if (auction.status !== "draft") {
+      return; // Already processed or not a draft
+    }
+
+    // Update auction status to active
+    await ctx.db.patch(args.auctionId, {
+      status: "active",
+    });
+
+    // Notify the auctioneer that their auction has started
+    await ctx.db.insert("notifications", {
+      userId: auction.auctioneerId,
+      type: "auction_started",
+      title: "Auction Started",
+      message: `Your auction "${auction.title}" has started and is now accepting bids!`,
+      auctionId: args.auctionId,
+      isRead: false,
+      priority: "high",
+    });
   },
 });
