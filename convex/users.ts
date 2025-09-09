@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 async function getLoggedInUser(ctx: any) {
@@ -148,9 +148,17 @@ export const getUserProfile = query({
 
     const user = await ctx.db.get(targetUserId);
     
+    // Get unread notifications count
+    const notifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_user", (q) => q.eq("userId", targetUserId))
+      .filter((q) => q.eq(q.field("isRead"), false))
+      .collect();
+    
     return {
       ...profile,
       email: user?.email, // Only return email for own profile
+      notifications: notifications,
     };
   },
 });

@@ -14,6 +14,9 @@ importers:
       '@convex-dev/auth':
         specifier: ^0.0.80
         version: 0.0.80(@auth/core@0.40.0)(convex@1.26.2(react@19.1.1))(react@19.1.1)
+      '@date-fns/tz':
+        specifier: ^1.4.1
+        version: 1.4.1
       '@tanstack/react-router':
         specifier: ^1.131.35
         version: 1.131.35(react-dom@19.1.1(react@19.1.1))(react@19.1.1)

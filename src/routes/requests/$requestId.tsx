@@ -3,6 +3,7 @@ import { useQuery } from 'convex/react'
 import { api } from '~/convex/_generated/api'
 import { Id } from '~/convex/_generated/dataModel'
 import { AuthRequired } from '~/components/auth/AuthRequired'
+import { TZDate } from '@date-fns/tz'
 
 export const Route = createFileRoute('/requests/$requestId')({
   component: RequestDetailPage,
@@ -106,8 +107,8 @@ function RequestDetailPage() {
                     <p>Your request has been approved and an auction has been scheduled.</p>
                     {request.auction && (
                       <>
-                        <p><strong>Start:</strong> {new Date(request.auction.startTime).toLocaleString()}</p>
-                        <p><strong>End:</strong> {new Date(request.auction.endTime).toLocaleString()}</p>
+                        <p><strong>Start:</strong> {new TZDate(request.auction.startTime, Intl.DateTimeFormat().resolvedOptions().timeZone).toLocaleString()}</p>
+                        <p><strong>End:</strong> {new TZDate(request.auction.endTime, Intl.DateTimeFormat().resolvedOptions().timeZone).toLocaleString()}</p>
                         <p><strong>Starting Price:</strong> ${request.auction.startingPrice.toLocaleString()}</p>
                       </>
                     )}

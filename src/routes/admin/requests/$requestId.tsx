@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 import React from 'react'
+import { format } from 'date-fns'
+import { TZDate } from '@date-fns/tz'
 
 export const Route = createFileRoute('/admin/requests/$requestId')({
   component: AdminRequestDetailPage,
@@ -50,16 +52,14 @@ function AdminRequestDetailPage() {
       return
     }
 
-    // Create dates in Pacific Time
-    const startDateTime = new Date(`${startDate}T${startTime}`)
-    const endDateTime = new Date(`${endDate}T${endTime}`)
+    // Create dates in user's local timezone and convert to UTC for storage
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const startDateTime = new TZDate(`${startDate}T${startTime}`, userTimezone)
+    const endDateTime = new TZDate(`${endDate}T${endTime}`, userTimezone)
     
-    // Convert Pacific Time to UTC properly
-    // Pacific Time is UTC-8 (PST) or UTC-7 (PDT)
-    // We need to subtract the offset to get UTC time
-    const pacificOffset = 8 * 60 * 60 * 1000 // 8 hours in milliseconds (PST)
-    const startDateTimeUTC = new Date(startDateTime.getTime() - pacificOffset)
-    const endDateTimeUTC = new Date(endDateTime.getTime() - pacificOffset)
+    // Get UTC timestamps for storage
+    const startDateTimeUTC = new Date(startDateTime.getTime())
+    const endDateTimeUTC = new Date(endDateTime.getTime())
     
     if (startDateTimeUTC.getTime() <= Date.now()) {
       toast.error("Auction start time must be in the future")
@@ -160,16 +160,14 @@ function AdminRequestDetailPage() {
       return
     }
 
-    // Create dates in Pacific Time
-    const startDateTime = new Date(`${editStartDate}T${editStartTime}`)
-    const endDateTime = new Date(`${editEndDate}T${editEndTime}`)
+    // Create dates in user's local timezone and convert to UTC for storage
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const startDateTime = new TZDate(`${editStartDate}T${editStartTime}`, userTimezone)
+    const endDateTime = new TZDate(`${editEndDate}T${editEndTime}`, userTimezone)
     
-    // Convert Pacific Time to UTC properly
-    // Pacific Time is UTC-8 (PST) or UTC-7 (PDT)
-    // We need to subtract the offset to get UTC time
-    const pacificOffset = 8 * 60 * 60 * 1000 // 8 hours in milliseconds (PST)
-    const startDateTimeUTC = new Date(startDateTime.getTime() - pacificOffset)
-    const endDateTimeUTC = new Date(endDateTime.getTime() - pacificOffset)
+    // Get UTC timestamps for storage
+    const startDateTimeUTC = new Date(startDateTime.getTime())
+    const endDateTimeUTC = new Date(endDateTime.getTime())
     
     if (startDateTimeUTC.getTime() <= Date.now()) {
       toast.error("Auction start time must be in the future")
@@ -180,9 +178,6 @@ function AdminRequestDetailPage() {
       toast.error("Auction end time must be after start time")
       return
     }
-
-    const durationMs = endDateTimeUTC.getTime() - startDateTimeUTC.getTime()
-    const calculatedDurationHours = Math.ceil(durationMs / (1000 * 60 * 60))
 
     try {
       await updateAuction({
@@ -203,15 +198,11 @@ function AdminRequestDetailPage() {
   // Calculate duration display
   const calculateDuration = () => {
     if (startDate && startTime && endDate && endTime) {
-      const startDateTime = new Date(`${startDate}T${startTime}`)
-      const endDateTime = new Date(`${endDate}T${endTime}`)
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const startDateTime = new TZDate(`${startDate}T${startTime}`, userTimezone)
+      const endDateTime = new TZDate(`${endDate}T${endTime}`, userTimezone)
       
-      // Convert to UTC for accurate calculation (same logic as above)
-      const pacificOffset = 8 * 60 * 60 * 1000 // 8 hours in milliseconds (PST)
-      const startDateTimeUTC = new Date(startDateTime.getTime() - pacificOffset)
-      const endDateTimeUTC = new Date(endDateTime.getTime() - pacificOffset)
-      
-      const durationMs = endDateTimeUTC.getTime() - startDateTimeUTC.getTime()
+      const durationMs = endDateTime.getTime() - startDateTime.getTime()
       const hours = Math.ceil(durationMs / (1000 * 60 * 60))
       return hours > 0 ? `${hours} hours` : "Invalid duration"
     }
@@ -221,15 +212,11 @@ function AdminRequestDetailPage() {
   // Calculate duration display for edit form
   const calculateEditDuration = () => {
     if (editStartDate && editStartTime && editEndDate && editEndTime) {
-      const startDateTime = new Date(`${editStartDate}T${editStartTime}`)
-      const endDateTime = new Date(`${editEndDate}T${editEndTime}`)
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const startDateTime = new TZDate(`${editStartDate}T${editStartTime}`, userTimezone)
+      const endDateTime = new TZDate(`${editEndDate}T${editEndTime}`, userTimezone)
       
-      // Convert to UTC for accurate calculation
-      const pacificOffset = 8 * 60 * 60 * 1000 // 8 hours in milliseconds (PST)
-      const startDateTimeUTC = new Date(startDateTime.getTime() - pacificOffset)
-      const endDateTimeUTC = new Date(endDateTime.getTime() - pacificOffset)
-      
-      const durationMs = endDateTimeUTC.getTime() - startDateTimeUTC.getTime()
+      const durationMs = endDateTime.getTime() - startDateTime.getTime()
       const hours = Math.ceil(durationMs / (1000 * 60 * 60))
       return hours > 0 ? `${hours} hours` : "Invalid duration"
     }
@@ -242,14 +229,15 @@ function AdminRequestDetailPage() {
       const auction = request.auction
       setEditStartingPrice(auction.startingPrice)
       
-      // Convert UTC times back to Pacific Time for display
-      const startDate = new Date(auction.startTime + (8 * 60 * 60 * 1000))
-      const endDate = new Date(auction.endTime + (8 * 60 * 60 * 1000))
+      // Convert UTC times back to user's local timezone for display
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const startDate = new TZDate(auction.startTime, userTimezone)
+      const endDate = new TZDate(auction.endTime, userTimezone)
       
-      setEditStartDate(startDate.toISOString().split('T')[0])
-      setEditStartTime(startDate.toTimeString().slice(0, 5))
-      setEditEndDate(endDate.toISOString().split('T')[0])
-      setEditEndTime(endDate.toTimeString().slice(0, 5))
+      setEditStartDate(format(startDate, 'yyyy-MM-dd'))
+      setEditStartTime(format(startDate, 'HH:mm'))
+      setEditEndDate(format(endDate, 'yyyy-MM-dd'))
+      setEditEndTime(format(endDate, 'HH:mm'))
       setEditIsFixedEndTime(auction.isFixedEndTime)
       setEditAdminNotes(request.adminNotes || "")
     }
@@ -406,7 +394,7 @@ function AdminRequestDetailPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block mb-1 text-sm font-medium text-gray-700">
-                            Start Date * (Pacific Time)
+                            Start Date *
                           </label>
                           <input
                             type="date"
@@ -420,7 +408,7 @@ function AdminRequestDetailPage() {
                         
                         <div>
                           <label className="block mb-1 text-sm font-medium text-gray-700">
-                            Start Time * (Pacific Time)
+                            Start Time *
                           </label>
                           <input
                             type="time"
@@ -435,7 +423,7 @@ function AdminRequestDetailPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block mb-1 text-sm font-medium text-gray-700">
-                            End Date * (Pacific Time)
+                            End Date *
                           </label>
                           <input
                             type="date"
@@ -449,7 +437,7 @@ function AdminRequestDetailPage() {
                         
                         <div>
                           <label className="block mb-1 text-sm font-medium text-gray-700">
-                            End Time * (Pacific Time)
+                            End Time *
                           </label>
                           <input
                             type="time"
@@ -597,7 +585,7 @@ function AdminRequestDetailPage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                              Start Date * (Pacific Time)
+                              Start Date *
                             </label>
                             <input
                               type="date"
@@ -611,7 +599,7 @@ function AdminRequestDetailPage() {
                           
                           <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                              Start Time * (Pacific Time)
+                              Start Time *
                             </label>
                             <input
                               type="time"
@@ -626,7 +614,7 @@ function AdminRequestDetailPage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                              End Date * (Pacific Time)
+                              End Date *
                             </label>
                             <input
                               type="date"
@@ -640,7 +628,7 @@ function AdminRequestDetailPage() {
                           
                           <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                              End Time * (Pacific Time)
+                              End Time *
                             </label>
                             <input
                               type="time"

@@ -79,12 +79,17 @@ export function Header() {
               </Link>
               <Link
                 to="/notifications"
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${ isActive("/notifications") 
+                className={`relative px-3 py-2 text-sm font-medium rounded-md transition-colors ${ isActive("/notifications") 
                     ? "text-blue-700 bg-blue-100" 
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Notifications
+                {userProfile?.notifications?.length && userProfile?.notifications?.length > 0 && (
+                  <span className="flex absolute -top-1 -right-1 justify-center items-center w-5 h-5 text-xs font-medium text-white bg-red-500 rounded-full">
+                    {userProfile.notifications.length}
+                  </span>
+                )}
               </Link>
               {userProfile?.isAdmin && (
                 <Link

@@ -13,6 +13,7 @@
   "dependencies": {
     "@auth/core": "^0.40.0",
     "@convex-dev/auth": "^0.0.80",
+    "@date-fns/tz": "^1.4.1",
     "@tanstack/react-router": "^1.131.35",
     "@tanstack/router-devtools": "^1.131.35",
     "@tanstack/router-vite-plugin": "^1.131.35",
