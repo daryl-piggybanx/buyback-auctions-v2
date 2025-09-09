@@ -39,7 +39,6 @@ export const placeBid = mutation({
     const blacklistEntry = await ctx.db
       .query("blacklist")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("isActive"), true))
       .first();
     
     if (blacklistEntry) {

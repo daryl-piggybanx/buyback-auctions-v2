@@ -1,14 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AuctionDashboard } from '~/components/dashboard/AuctionDashboard'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/auctions')({
-  component: AuctionsPage,
+  component: RequestsLayout,
 })
 
-function AuctionsPage() {
-  return (
-    <div className="px-4 py-8 mx-auto max-w-7xl">
-      <AuctionDashboard />
-    </div>
-  )
+function RequestsLayout() {
+  return <Outlet />
 }

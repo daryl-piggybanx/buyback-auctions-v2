@@ -2,6 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { Link } from '@tanstack/react-router';
 import { DuplicateUsersManager } from "~/components/DuplicateUsersManager";
+import { Button } from "~/components/ui/button";
 
 export function AdminPanel() {
   const pendingRequests = useQuery(api.auctionRequests.getPendingAuctionRequests);
@@ -17,6 +18,16 @@ export function AdminPanel() {
   return (
     <div className="space-y-6">
       <DuplicateUsersManager />
+
+      <Link 
+        to="/admin/blacklist"
+      >
+        <Button
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
+        >
+          Manage Blacklist
+        </Button>
+      </Link>
       
       <div className="p-6 bg-white rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
@@ -107,6 +118,7 @@ export function AdminPanel() {
           </div>
         )}
       </div>
+      
     </div>
   );
 }

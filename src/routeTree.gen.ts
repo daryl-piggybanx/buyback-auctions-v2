@@ -21,9 +21,12 @@ import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RequestsIndexRouteImport } from './routes/requests/index'
+import { Route as AuctionsIndexRouteImport } from './routes/auctions/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as RequestsRequestIdRouteImport } from './routes/requests/$requestId'
+import { Route as AuctionsAuctionIdRouteImport } from './routes/auctions/$auctionId'
 import { Route as AdminRequestsRouteImport } from './routes/admin/requests'
+import { Route as AdminBlacklistRouteImport } from './routes/admin/blacklist'
 import { Route as AdminRequestsIndexRouteImport } from './routes/admin/requests/index'
 import { Route as AdminRequestsRequestIdRouteImport } from './routes/admin/requests/$requestId'
 
@@ -87,6 +90,11 @@ const RequestsIndexRoute = RequestsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RequestsRoute,
 } as any)
+const AuctionsIndexRoute = AuctionsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuctionsRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -97,9 +105,19 @@ const RequestsRequestIdRoute = RequestsRequestIdRouteImport.update({
   path: '/$requestId',
   getParentRoute: () => RequestsRoute,
 } as any)
+const AuctionsAuctionIdRoute = AuctionsAuctionIdRouteImport.update({
+  id: '/$auctionId',
+  path: '/$auctionId',
+  getParentRoute: () => AuctionsRoute,
+} as any)
 const AdminRequestsRoute = AdminRequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlacklistRoute = AdminBlacklistRouteImport.update({
+  id: '/blacklist',
+  path: '/blacklist',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRequestsIndexRoute = AdminRequestsIndexRouteImport.update({
@@ -118,16 +136,19 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/archive': typeof ArchiveRoute
   '/archived': typeof ArchivedRoute
-  '/auctions': typeof AuctionsRoute
+  '/auctions': typeof AuctionsRouteWithChildren
   '/auth': typeof AuthRoute
   '/favorites': typeof FavoritesRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/request-auction': typeof RequestAuctionRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/admin/blacklist': typeof AdminBlacklistRoute
   '/admin/requests': typeof AdminRequestsRouteWithChildren
+  '/auctions/$auctionId': typeof AuctionsAuctionIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/auctions/': typeof AuctionsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/admin/requests/$requestId': typeof AdminRequestsRequestIdRoute
   '/admin/requests/': typeof AdminRequestsIndexRoute
@@ -136,14 +157,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/archive': typeof ArchiveRoute
   '/archived': typeof ArchivedRoute
-  '/auctions': typeof AuctionsRoute
   '/auth': typeof AuthRoute
   '/favorites': typeof FavoritesRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/request-auction': typeof RequestAuctionRoute
+  '/admin/blacklist': typeof AdminBlacklistRoute
+  '/auctions/$auctionId': typeof AuctionsAuctionIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
   '/admin': typeof AdminIndexRoute
+  '/auctions': typeof AuctionsIndexRoute
   '/requests': typeof RequestsIndexRoute
   '/admin/requests/$requestId': typeof AdminRequestsRequestIdRoute
   '/admin/requests': typeof AdminRequestsIndexRoute
@@ -154,16 +177,19 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/archive': typeof ArchiveRoute
   '/archived': typeof ArchivedRoute
-  '/auctions': typeof AuctionsRoute
+  '/auctions': typeof AuctionsRouteWithChildren
   '/auth': typeof AuthRoute
   '/favorites': typeof FavoritesRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/request-auction': typeof RequestAuctionRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/admin/blacklist': typeof AdminBlacklistRoute
   '/admin/requests': typeof AdminRequestsRouteWithChildren
+  '/auctions/$auctionId': typeof AuctionsAuctionIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/auctions/': typeof AuctionsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/admin/requests/$requestId': typeof AdminRequestsRequestIdRoute
   '/admin/requests/': typeof AdminRequestsIndexRoute
@@ -182,9 +208,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/request-auction'
     | '/requests'
+    | '/admin/blacklist'
     | '/admin/requests'
+    | '/auctions/$auctionId'
     | '/requests/$requestId'
     | '/admin/'
+    | '/auctions/'
     | '/requests/'
     | '/admin/requests/$requestId'
     | '/admin/requests/'
@@ -193,14 +222,16 @@ export interface FileRouteTypes {
     | '/'
     | '/archive'
     | '/archived'
-    | '/auctions'
     | '/auth'
     | '/favorites'
     | '/notifications'
     | '/profile'
     | '/request-auction'
+    | '/admin/blacklist'
+    | '/auctions/$auctionId'
     | '/requests/$requestId'
     | '/admin'
+    | '/auctions'
     | '/requests'
     | '/admin/requests/$requestId'
     | '/admin/requests'
@@ -217,9 +248,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/request-auction'
     | '/requests'
+    | '/admin/blacklist'
     | '/admin/requests'
+    | '/auctions/$auctionId'
     | '/requests/$requestId'
     | '/admin/'
+    | '/auctions/'
     | '/requests/'
     | '/admin/requests/$requestId'
     | '/admin/requests/'
@@ -230,7 +264,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ArchiveRoute: typeof ArchiveRoute
   ArchivedRoute: typeof ArchivedRoute
-  AuctionsRoute: typeof AuctionsRoute
+  AuctionsRoute: typeof AuctionsRouteWithChildren
   AuthRoute: typeof AuthRoute
   FavoritesRoute: typeof FavoritesRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -325,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestsIndexRouteImport
       parentRoute: typeof RequestsRoute
     }
+    '/auctions/': {
+      id: '/auctions/'
+      path: '/'
+      fullPath: '/auctions/'
+      preLoaderRoute: typeof AuctionsIndexRouteImport
+      parentRoute: typeof AuctionsRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -339,11 +380,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestsRequestIdRouteImport
       parentRoute: typeof RequestsRoute
     }
+    '/auctions/$auctionId': {
+      id: '/auctions/$auctionId'
+      path: '/$auctionId'
+      fullPath: '/auctions/$auctionId'
+      preLoaderRoute: typeof AuctionsAuctionIdRouteImport
+      parentRoute: typeof AuctionsRoute
+    }
     '/admin/requests': {
       id: '/admin/requests'
       path: '/requests'
       fullPath: '/admin/requests'
       preLoaderRoute: typeof AdminRequestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blacklist': {
+      id: '/admin/blacklist'
+      path: '/blacklist'
+      fullPath: '/admin/blacklist'
+      preLoaderRoute: typeof AdminBlacklistRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/requests/': {
@@ -378,16 +433,32 @@ const AdminRequestsRouteWithChildren = AdminRequestsRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminBlacklistRoute: typeof AdminBlacklistRoute
   AdminRequestsRoute: typeof AdminRequestsRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBlacklistRoute: AdminBlacklistRoute,
   AdminRequestsRoute: AdminRequestsRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface AuctionsRouteChildren {
+  AuctionsAuctionIdRoute: typeof AuctionsAuctionIdRoute
+  AuctionsIndexRoute: typeof AuctionsIndexRoute
+}
+
+const AuctionsRouteChildren: AuctionsRouteChildren = {
+  AuctionsAuctionIdRoute: AuctionsAuctionIdRoute,
+  AuctionsIndexRoute: AuctionsIndexRoute,
+}
+
+const AuctionsRouteWithChildren = AuctionsRoute._addFileChildren(
+  AuctionsRouteChildren,
+)
 
 interface RequestsRouteChildren {
   RequestsRequestIdRoute: typeof RequestsRequestIdRoute
@@ -408,7 +479,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ArchiveRoute: ArchiveRoute,
   ArchivedRoute: ArchivedRoute,
-  AuctionsRoute: AuctionsRoute,
+  AuctionsRoute: AuctionsRouteWithChildren,
   AuthRoute: AuthRoute,
   FavoritesRoute: FavoritesRoute,
   NotificationsRoute: NotificationsRoute,

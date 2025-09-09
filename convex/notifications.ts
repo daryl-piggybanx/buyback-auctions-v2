@@ -28,8 +28,14 @@ async function getLoggedInUser(ctx: any) {
 
 export const getUserNotifications = query({
   args: {},
+  returns: v.array(v.any()), // Using v.any() for simplicity since this returns Doc<"notifications">
   handler: async (ctx) => {
-    const userId = await getLoggedInUser(ctx);
+    const userId = await getAuthUserId(ctx);
+    
+    // Return empty array if user is not authenticated (signed out)
+    if (!userId) {
+      return [];
+    }
     
     return await ctx.db
       .query("notifications")
@@ -58,6 +64,7 @@ export const sendNotification = mutation({
 
 export const markNotificationRead = mutation({
   args: { notificationId: v.id("notifications") },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const userId = await getLoggedInUser(ctx);
     const notification = await ctx.db.get(args.notificationId);
@@ -67,6 +74,7 @@ export const markNotificationRead = mutation({
     }
 
     await ctx.db.patch(args.notificationId, { isRead: true });
+    return null;
   },
 });
 

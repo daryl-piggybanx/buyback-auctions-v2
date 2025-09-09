@@ -100,11 +100,11 @@ const applicationTables = {
     .index("by_username", ["username"]),
 
   blacklist: defineTable({
-    userId: v.id("users"),
-    reason: v.string(),
-    addedBy: v.id("users"),
-    isActive: v.boolean(),
-  }).index("by_user", ["userId"]),
+    userId: v.optional(v.id("users")),
+    email: v.optional(v.string()),
+    reason: v.optional(v.string()),
+    addedBy: v.optional(v.id("users")),
+  }).index("by_user", ["userId"]).index("by_email", ["email"]),
 
   notifications: defineTable({
     userId: v.id("users"),

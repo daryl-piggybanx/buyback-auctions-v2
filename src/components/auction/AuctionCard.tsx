@@ -178,7 +178,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
                 }}
                 className="px-4 py-2 w-full font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
               >
-                {userProfile ? "Place Bid" : "Sign In to Bid"}
+                {userProfile && userProfile ? "Place Bid" : "Sign In to Bid"}
               </button>
             ) : (
               <form onSubmit={handlePlaceBid} className="space-y-2">
