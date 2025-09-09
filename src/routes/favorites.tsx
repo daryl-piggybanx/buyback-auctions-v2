@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { FavoritesView } from '~/components/FavoritesView'
+import { FavoritesView } from '~/components/dashboard/FavoritesView'
 import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/favorites')({

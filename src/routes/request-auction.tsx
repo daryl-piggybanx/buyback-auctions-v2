@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { CreateAuctionRequestForm } from '~/components/CreateAuctionRequestForm'
+import { CreateAuctionRequestForm } from '~/components/auction/CreateAuctionRequestForm'
 import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/request-auction')({

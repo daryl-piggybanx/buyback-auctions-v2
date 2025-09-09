@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { NotificationCenter } from '~/components/NotificationCenter'
+import { NotificationCenter } from '~/components/dashboard/NotificationCenter'
 import { AuthRequired } from '~/components/auth/AuthRequired'
 
 export const Route = createFileRoute('/notifications')({

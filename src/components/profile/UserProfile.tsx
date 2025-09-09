@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { toast } from "sonner";
-import { ProfileSetup } from "./ProfileSetup";
+import { ProfileSetup } from "~/components/profile/ProfileSetup";
 
 export function UserProfile() {
   const [isCreating, setIsCreating] = useState(false);

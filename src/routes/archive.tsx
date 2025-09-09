@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ArchivedAuctionsView } from '~/components/ArchivedAuctionsView'
+import { ArchivedAuctionsView } from '~/components/dashboard/ArchivedAuctionsView'
 
 export const Route = createFileRoute('/archive')({
   component: ArchivePage,

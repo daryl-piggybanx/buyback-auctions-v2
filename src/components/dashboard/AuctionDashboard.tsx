@@ -1,6 +1,6 @@
 import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { AuctionCard } from "./AuctionCard";
+import { AuctionCard } from "~/components/auction/AuctionCard";
 import { useState } from "react";
 
 export function AuctionDashboard() {
