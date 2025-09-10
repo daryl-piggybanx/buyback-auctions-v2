@@ -19,6 +19,7 @@ export const createProfileAfterSignup = mutation({
   args: {
     username: v.string(),
   },
+  returns: v.id("userProfiles"),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
@@ -72,6 +73,7 @@ export const createProfileAfterSignup = mutation({
       isVerified: false,
       joinedAt: Date.now(),
       isAdmin,
+      isBlacklisted: false, // Default to not blacklisted
     });
   },
 });
@@ -83,6 +85,7 @@ export const createUserProfile = mutation({
     bio: v.optional(v.string()),
     location: v.optional(v.string()),
   },
+  returns: v.id("userProfiles"),
   handler: async (ctx, args) => {
     const userId = await getLoggedInUser(ctx);
     
@@ -123,6 +126,7 @@ export const createUserProfile = mutation({
       isVerified: false,
       joinedAt: Date.now(),
       isAdmin,
+      isBlacklisted: false, // Default to not blacklisted
     });
   },
 });
@@ -292,5 +296,35 @@ export const removeFromBlacklist = mutation({
     
     await ctx.db.delete(args.entryId);
     return { success: true };
+  },
+});
+
+export const checkIfUserIsBlacklisted = query({
+  args: {},
+  returns: v.boolean(),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return false; // Anonymous users are not blacklisted
+    }
+    
+    // Check if user is blacklisted by userId
+    let blacklistEntry = await ctx.db
+      .query("blacklist")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    
+    // If not found by userId, also check by email
+    if (!blacklistEntry) {
+      const user = await ctx.db.get(userId);
+      if (user?.email) {
+        blacklistEntry = await ctx.db
+          .query("blacklist")
+          .withIndex("by_email", (q) => q.eq("email", user.email))
+          .first();
+      }
+    }
+    
+    return !!blacklistEntry;
   },
 });

@@ -16,6 +16,7 @@ function isAdminEmail(email: string): boolean {
 
 export const createOrUpdateProfileFromAuth = mutation({
   args: {},
+  returns: v.union(v.null(), v.id("userProfiles")),
   handler: async (ctx) => {
     const userId = await getLoggedInUser(ctx);
     const user = await ctx.db.get(userId);
@@ -58,6 +59,7 @@ export const createOrUpdateProfileFromAuth = mutation({
         isVerified: true, // OAuth users are verified
         joinedAt: Date.now(),
         isAdmin,
+        isBlacklisted: false, // Default to not blacklisted
       });
     }
 

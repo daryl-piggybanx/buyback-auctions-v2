@@ -85,7 +85,7 @@ export function Header() {
                 }`}
               >
                 Notifications
-                {userProfile?.notifications?.length && userProfile?.notifications?.length > 0 && (
+                {userProfile?.notifications && userProfile.notifications.length > 0 && (
                   <span className="flex absolute -top-1 -right-1 justify-center items-center w-5 h-5 text-xs font-medium text-white bg-red-500 rounded-full">
                     {userProfile.notifications.length}
                   </span>

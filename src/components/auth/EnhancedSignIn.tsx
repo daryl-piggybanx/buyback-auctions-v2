@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { toast } from "sonner";
+import { Doc } from "~/convex/_generated/dataModel";
+import { User } from "@auth/core/types";
+
+type BlacklistEntry = Doc<"blacklist"> & {
+  user?: User | null;
+  profile?: Doc<"userProfiles"> | null;
+};
 
 export function EnhancedSignIn() {
   const { signIn } = useAuthActions();
@@ -18,6 +25,7 @@ export function EnhancedSignIn() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      
       await signIn("google");
     } catch (error) {
       toast.error("Failed to sign in with Google");
@@ -37,6 +45,11 @@ export function EnhancedSignIn() {
         password, 
         flow: isSignUp ? "signUp" : "signIn" 
       };
+
+      if (authData.blacklist) {
+        toast.error("You are blacklisted from the platform. Please contact support.");
+        return;
+      }
       
       if (isSignUp && username) {
         authData.name = username; // Use username as name for profile creation
@@ -143,13 +156,13 @@ export function EnhancedSignIn() {
   if (step === "choose") {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 text-center mb-6">Sign In to ArtAuction</h3>
+        <h3 className="mb-6 text-lg font-medium text-center text-gray-900">Sign In to ArtAuction</h3>
         
         {/* Google OAuth */}
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex gap-3 justify-center items-center px-4 py-3 w-full text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -161,18 +174,18 @@ export function EnhancedSignIn() {
         </button>
 
         <div className="relative">
-          <div className="absolute inset-0 flex items-center">
+          <div className="flex absolute inset-0 items-center">
             <div className="w-full border-t border-gray-300" />
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          <div className="flex relative justify-center text-sm">
+            <span className="px-2 text-gray-500 bg-white">Or continue with</span>
           </div>
         </div>
 
         {/* Email/Password Option */}
         <button
           onClick={() => setStep("password")}
-          className="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-3 w-full text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Email & Password
         </button>
@@ -180,7 +193,7 @@ export function EnhancedSignIn() {
         {/* OTP Option */}
         <button
           onClick={() => setStep("otp")}
-          className="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-3 w-full text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Email Verification Code
         </button>
@@ -191,7 +204,7 @@ export function EnhancedSignIn() {
   if (step === "password") {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">
             {isSignUp ? "Create Account" : "Sign In"}
           </h3>
@@ -206,14 +219,14 @@ export function EnhancedSignIn() {
         <form onSubmit={handlePasswordAuth} className="space-y-4">
           {isSignUp && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Username *
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Choose a unique username"
                 required
                 minLength={3}
@@ -221,34 +234,34 @@ export function EnhancedSignIn() {
                 pattern="[a-zA-Z0-9_]+"
                 title="Username can only contain letters, numbers, and underscores"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="mt-1 text-xs text-gray-500">
                 3-20 characters, letters, numbers, and underscores only
               </p>
             </div>
           )}
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               minLength={6}
             />
@@ -257,7 +270,7 @@ export function EnhancedSignIn() {
           <button
             type="submit"
             disabled={loading || (isSignUp && !username.trim())}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Processing..." : (isSignUp ? "Create Account" : "Sign In")}
           </button>
@@ -289,7 +302,7 @@ export function EnhancedSignIn() {
   if (step === "reset-password") {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">Reset Password</h3>
           <button
             onClick={() => setStep("password")}
@@ -305,14 +318,14 @@ export function EnhancedSignIn() {
 
         <form onSubmit={handleSendPasswordReset} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -320,7 +333,7 @@ export function EnhancedSignIn() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Sending..." : "Send Reset Code"}
           </button>
@@ -332,7 +345,7 @@ export function EnhancedSignIn() {
   if (step === "reset-verify") {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">Reset Your Password</h3>
           <button
             onClick={() => setStep("reset-password")}
@@ -348,14 +361,14 @@ export function EnhancedSignIn() {
 
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Reset Code
             </label>
             <input
               type="text"
               value={resetCode}
               onChange={(e) => setResetCode(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
+              className="px-3 py-2 w-full text-lg tracking-widest text-center rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="000000"
               maxLength={6}
               required
@@ -363,28 +376,28 @@ export function EnhancedSignIn() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               New Password
             </label>
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               minLength={6}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Confirm New Password
             </label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               minLength={6}
             />
@@ -393,7 +406,7 @@ export function EnhancedSignIn() {
           <button
             type="submit"
             disabled={loading || resetCode.length !== 6 || newPassword !== confirmPassword}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
@@ -419,7 +432,7 @@ export function EnhancedSignIn() {
   if (step === "otp") {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">Email Verification</h3>
           <button
             onClick={() => setStep("choose")}
@@ -435,14 +448,14 @@ export function EnhancedSignIn() {
 
         <form onSubmit={handleSendOTP} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -450,7 +463,7 @@ export function EnhancedSignIn() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Sending..." : "Send Verification Code"}
           </button>
@@ -462,7 +475,7 @@ export function EnhancedSignIn() {
   if (step === "otp-verify") {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">Enter Verification Code</h3>
           <button
             onClick={() => setStep("otp")}
@@ -478,14 +491,14 @@ export function EnhancedSignIn() {
 
         <form onSubmit={handleVerifyOTP} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Verification Code
             </label>
             <input
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
+              className="px-3 py-2 w-full text-lg tracking-widest text-center rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="000000"
               maxLength={6}
               required
@@ -495,7 +508,7 @@ export function EnhancedSignIn() {
           <button
             type="submit"
             disabled={loading || code.length !== 6}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Verifying..." : "Verify & Sign In"}
           </button>

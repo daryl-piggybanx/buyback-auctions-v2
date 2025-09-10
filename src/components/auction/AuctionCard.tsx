@@ -28,6 +28,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
   const toggleFavorite = useMutation(api.favorites.toggleFavorite);
   const userProfile = useQuery(api.users.getUserProfile, {});
   const isFavorited = useQuery(api.favorites.checkIsFavorited, { auctionId: auction._id });
+  const isBlacklisted = useQuery(api.users.checkIfUserIsBlacklisted, {});
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,6 +58,11 @@ export function AuctionCard({ auction }: AuctionCardProps) {
     
     if (!userProfile) {
       toast.error("You must create a profile before bidding");
+      return;
+    }
+    
+    if (isBlacklisted) {
+      toast.error("Your account has been restricted from placing bids");
       return;
     }
     
@@ -106,7 +112,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           />
           {userProfile && (
             <button
-              onClick={handleToggleFavorite}
+              onClick={() => void handleToggleFavorite()}
               className={`absolute top-2 right-2 p-2 rounded-full transition-colors ${
                 isFavorited 
                   ? "text-white bg-red-500 hover:bg-red-600" 
@@ -167,7 +173,12 @@ export function AuctionCard({ auction }: AuctionCardProps) {
 
         {!isEnded && !auction.isLocked && !isScheduled && (
           <div className="space-y-2">
-            {!showBidForm ? (
+            {isBlacklisted ? (
+              <div className="px-3 py-2 text-sm text-red-700 bg-red-50 rounded border border-red-200">
+                <p className="font-medium">Account Restricted</p>
+                <p>Your account has been restricted from placing bids.</p>
+              </div>
+            ) : !showBidForm ? (
               <button
                 onClick={() => {
                   if (!userProfile) {
@@ -181,7 +192,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
                 {userProfile && userProfile ? "Place Bid" : "Sign In to Bid"}
               </button>
             ) : (
-              <form onSubmit={handlePlaceBid} className="space-y-2">
+              <form onSubmit={(e) => void handlePlaceBid(e)} className="space-y-2">
                 <input
                   type="number"
                   value={bidAmount}

@@ -95,6 +95,7 @@ const applicationTables = {
     isVerified: v.boolean(),
     joinedAt: v.number(),
     isAdmin: v.optional(v.boolean()),
+    isBlacklisted: v.optional(v.boolean()),
   })
     .index("by_user", ["userId"])
     .index("by_username", ["username"]),

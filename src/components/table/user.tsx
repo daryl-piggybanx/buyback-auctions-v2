@@ -40,12 +40,12 @@ type BlacklistEntry = Doc<"blacklist"> & {
   profile?: Doc<"userProfiles"> | null;
 };
 
-export interface UserTableProps {
+export type UserTableProps = {
   data: User[] | BlacklistEntry[];
   type: "users" | "blacklist";
   onAddToBlacklist?: (userId: string, reason: string) => void;
   onRemoveFromBlacklist?: (entryId: string) => void;
-}
+};
 
 const UserTable: React.FC<UserTableProps> = ({ 
   data, 

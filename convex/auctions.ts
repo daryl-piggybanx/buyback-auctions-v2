@@ -32,14 +32,27 @@ export const placeBid = mutation({
     auctionId: v.id("auctions"),
     amount: v.number(),
   },
+  returns: v.object({ success: v.boolean(), newEndTime: v.number() }),
   handler: async (ctx, args) => {
     const { userId } = await requireUserProfile(ctx);
     
-    // Check if user is blacklisted
-    const blacklistEntry = await ctx.db
+    // Check if user is blacklisted by checking the blacklist table
+    // First check by userId
+    let blacklistEntry = await ctx.db
       .query("blacklist")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
+    
+    // If not found by userId, also check by email
+    if (!blacklistEntry) {
+      const user = await ctx.db.get(userId);
+      if (user?.email) {
+        blacklistEntry = await ctx.db
+          .query("blacklist")
+          .withIndex("by_email", (q) => q.eq("email", user.email))
+          .first();
+      }
+    }
     
     if (blacklistEntry) {
       throw new Error("User is blacklisted and cannot place bids");
