@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { Id } from "~/convex/_generated/dataModel";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 interface AuctionCardProps {
   auction: {
@@ -20,15 +21,12 @@ interface AuctionCardProps {
 }
 
 export function AuctionCard({ auction }: AuctionCardProps) {
-  const [bidAmount, setBidAmount] = useState("");
+  const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState(auction.timeRemaining);
   const [timeToStart, setTimeToStart] = useState(auction.timeToStart || 0);
-  const [showBidForm, setShowBidForm] = useState(false);
-  const placeBid = useMutation(api.auctions.placeBid);
   const toggleFavorite = useMutation(api.favorites.toggleFavorite);
   const userProfile = useQuery(api.users.getUserProfile, {});
   const isFavorited = useQuery(api.favorites.checkIsFavorited, { auctionId: auction._id });
-  const isBlacklisted = useQuery(api.users.checkIfUserIsBlacklisted, {});
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -53,36 +51,6 @@ export function AuctionCard({ auction }: AuctionCardProps) {
     }
   };
 
-  const handlePlaceBid = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!userProfile) {
-      toast.error("You must create a profile before bidding");
-      return;
-    }
-    
-    if (isBlacklisted) {
-      toast.error("Your account has been restricted from placing bids");
-      return;
-    }
-    
-    const amount = parseFloat(bidAmount);
-    
-    if (amount <= auction.currentBid) {
-      toast.error("Bid must be higher than current bid");
-      return;
-    }
-
-    try {
-      await placeBid({ auctionId: auction._id, amount });
-      toast.success("Bid placed successfully!");
-      setBidAmount("");
-      setShowBidForm(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to place bid");
-    }
-  };
-
   const handleToggleFavorite = async () => {
     if (!userProfile) {
       toast.error("You must create a profile to favorite auctions");
@@ -95,6 +63,10 @@ export function AuctionCard({ auction }: AuctionCardProps) {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to update favorites");
     }
+  };
+
+  const handleNavigateToAuction = () => {
+    navigate({ to: `/auctions/${auction._id}` });
   };
 
   const isEnded = timeLeft <= 0 && auction.status === "active";
@@ -171,64 +143,22 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           </div>
         )}
 
-        {!isEnded && !auction.isLocked && !isScheduled && (
-          <div className="space-y-2">
-            {isBlacklisted ? (
-              <div className="px-3 py-2 text-sm text-red-700 bg-red-50 rounded border border-red-200">
-                <p className="font-medium">Account Restricted</p>
-                <p>Your account has been restricted from placing bids.</p>
-              </div>
-            ) : !showBidForm ? (
-              <button
-                onClick={() => {
-                  if (!userProfile) {
-                    toast.error("You must create a profile before bidding");
-                    return;
-                  }
-                  setShowBidForm(true);
-                }}
-                className="px-4 py-2 w-full font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
-              >
-                {userProfile && userProfile ? "Place Bid" : "Sign In to Bid"}
-              </button>
-            ) : (
-              <form onSubmit={(e) => void handlePlaceBid(e)} className="space-y-2">
-                <input
-                  type="number"
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(e.target.value)}
-                  placeholder={`Min: $${(auction.currentBid + 1).toLocaleString()}`}
-                  min={auction.currentBid + 1}
-                  step="1"
-                  className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-2 font-medium text-white bg-green-600 rounded-md transition-colors hover:bg-green-700"
-                  >
-                    Bid ${bidAmount || "0"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowBidForm(false)}
-                    className="px-4 py-2 rounded-md border border-gray-300 transition-colors hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
-
-        {!userProfile && (
-          <div className="p-3 text-sm text-blue-700 bg-blue-50 rounded border border-blue-200">
-            <p className="font-medium">Create a profile to participate</p>
-            <p>You can view auctions anonymously, but need a profile to bid or favorite auctions.</p>
-          </div>
-        )}
+        {/* Navigation button - always visible */}
+        <div className="space-y-2">
+          <button
+            onClick={handleNavigateToAuction}
+            className="px-4 py-2 w-full font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
+          >
+            {isEnded ? "View Results" : isScheduled ? "View Auction" : "View Details"}
+          </button>
+          
+          {!userProfile && (
+            <div className="p-3 text-sm text-blue-700 bg-blue-50 rounded border border-blue-200">
+              <p className="font-medium">Create a profile to participate</p>
+              <p>You can view auctions anonymously, but need a profile to bid or favorite auctions.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

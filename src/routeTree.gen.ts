@@ -28,7 +28,9 @@ import { Route as AuctionsAuctionIdRouteImport } from './routes/auctions/$auctio
 import { Route as AdminRequestsRouteImport } from './routes/admin/requests'
 import { Route as AdminBlacklistRouteImport } from './routes/admin/blacklist'
 import { Route as AdminRequestsIndexRouteImport } from './routes/admin/requests/index'
+import { Route as AdminProfilesIndexRouteImport } from './routes/admin/profiles/index'
 import { Route as AdminRequestsRequestIdRouteImport } from './routes/admin/requests/$requestId'
+import { Route as AdminProfilesProfileIdRouteImport } from './routes/admin/profiles/$profileId'
 
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
@@ -125,10 +127,20 @@ const AdminRequestsIndexRoute = AdminRequestsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRequestsRoute,
 } as any)
+const AdminProfilesIndexRoute = AdminProfilesIndexRouteImport.update({
+  id: '/profiles/',
+  path: '/profiles/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminRequestsRequestIdRoute = AdminRequestsRequestIdRouteImport.update({
   id: '/$requestId',
   path: '/$requestId',
   getParentRoute: () => AdminRequestsRoute,
+} as any)
+const AdminProfilesProfileIdRoute = AdminProfilesProfileIdRouteImport.update({
+  id: '/profiles/$profileId',
+  path: '/profiles/$profileId',
+  getParentRoute: () => AdminRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -150,7 +162,9 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/auctions/': typeof AuctionsIndexRoute
   '/requests/': typeof RequestsIndexRoute
+  '/admin/profiles/$profileId': typeof AdminProfilesProfileIdRoute
   '/admin/requests/$requestId': typeof AdminRequestsRequestIdRoute
+  '/admin/profiles': typeof AdminProfilesIndexRoute
   '/admin/requests/': typeof AdminRequestsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -168,7 +182,9 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/auctions': typeof AuctionsIndexRoute
   '/requests': typeof RequestsIndexRoute
+  '/admin/profiles/$profileId': typeof AdminProfilesProfileIdRoute
   '/admin/requests/$requestId': typeof AdminRequestsRequestIdRoute
+  '/admin/profiles': typeof AdminProfilesIndexRoute
   '/admin/requests': typeof AdminRequestsIndexRoute
 }
 export interface FileRoutesById {
@@ -191,7 +207,9 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/auctions/': typeof AuctionsIndexRoute
   '/requests/': typeof RequestsIndexRoute
+  '/admin/profiles/$profileId': typeof AdminProfilesProfileIdRoute
   '/admin/requests/$requestId': typeof AdminRequestsRequestIdRoute
+  '/admin/profiles/': typeof AdminProfilesIndexRoute
   '/admin/requests/': typeof AdminRequestsIndexRoute
 }
 export interface FileRouteTypes {
@@ -215,7 +233,9 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auctions/'
     | '/requests/'
+    | '/admin/profiles/$profileId'
     | '/admin/requests/$requestId'
+    | '/admin/profiles'
     | '/admin/requests/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -233,7 +253,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auctions'
     | '/requests'
+    | '/admin/profiles/$profileId'
     | '/admin/requests/$requestId'
+    | '/admin/profiles'
     | '/admin/requests'
   id:
     | '__root__'
@@ -255,7 +277,9 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auctions/'
     | '/requests/'
+    | '/admin/profiles/$profileId'
     | '/admin/requests/$requestId'
+    | '/admin/profiles/'
     | '/admin/requests/'
   fileRoutesById: FileRoutesById
 }
@@ -408,12 +432,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRequestsIndexRouteImport
       parentRoute: typeof AdminRequestsRoute
     }
+    '/admin/profiles/': {
+      id: '/admin/profiles/'
+      path: '/profiles'
+      fullPath: '/admin/profiles'
+      preLoaderRoute: typeof AdminProfilesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/requests/$requestId': {
       id: '/admin/requests/$requestId'
       path: '/$requestId'
       fullPath: '/admin/requests/$requestId'
       preLoaderRoute: typeof AdminRequestsRequestIdRouteImport
       parentRoute: typeof AdminRequestsRoute
+    }
+    '/admin/profiles/$profileId': {
+      id: '/admin/profiles/$profileId'
+      path: '/profiles/$profileId'
+      fullPath: '/admin/profiles/$profileId'
+      preLoaderRoute: typeof AdminProfilesProfileIdRouteImport
+      parentRoute: typeof AdminRoute
     }
   }
 }
@@ -436,12 +474,16 @@ interface AdminRouteChildren {
   AdminBlacklistRoute: typeof AdminBlacklistRoute
   AdminRequestsRoute: typeof AdminRequestsRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminProfilesProfileIdRoute: typeof AdminProfilesProfileIdRoute
+  AdminProfilesIndexRoute: typeof AdminProfilesIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBlacklistRoute: AdminBlacklistRoute,
   AdminRequestsRoute: AdminRequestsRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
+  AdminProfilesProfileIdRoute: AdminProfilesProfileIdRoute,
+  AdminProfilesIndexRoute: AdminProfilesIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

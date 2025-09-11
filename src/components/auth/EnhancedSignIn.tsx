@@ -156,7 +156,7 @@ export function EnhancedSignIn() {
   if (step === "choose") {
     return (
       <div className="space-y-4">
-        <h3 className="mb-6 text-lg font-medium text-center text-gray-900">Sign In to ArtAuction</h3>
+        <h3 className="mb-6 text-lg font-medium text-center text-gray-900">Sign In to eBanx</h3>
         
         {/* Google OAuth */}
         <button

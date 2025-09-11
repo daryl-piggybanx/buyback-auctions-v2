@@ -19,6 +19,19 @@ export function AdminPanel() {
     <div className="space-y-6">
       <DuplicateUsersManager />
 
+      <div className="flex justify-end items-center p-6 mb-6 w-full">
+      <Link 
+        to="/admin/profiles"
+      >
+        <Button
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
+        >
+          Manage Profiles
+        </Button>
+      </Link>
+      </div>
+
+      <div className="flex justify-end items-center p-6 mb-6 w-full">
       <Link 
         to="/admin/blacklist"
       >
@@ -28,6 +41,7 @@ export function AdminPanel() {
           Manage Blacklist
         </Button>
       </Link>
+      </div>
       
       <div className="p-6 bg-white rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">

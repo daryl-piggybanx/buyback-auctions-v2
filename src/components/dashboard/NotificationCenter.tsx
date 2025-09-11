@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
+import { Link } from "@tanstack/react-router";
 
 export function NotificationCenter() {
   const notifications = useQuery(api.notifications.getUserNotifications);
@@ -62,6 +63,7 @@ export function NotificationCenter() {
                     </p>
                   </div>
                   
+                  <div className="flex flex-col gap-2">
                   {!notification.isRead && (
                     <button
                       onClick={() => handleMarkRead(notification._id)}
@@ -70,6 +72,16 @@ export function NotificationCenter() {
                       Mark Read
                     </button>
                   )}
+                  {notification.auctionId && (
+                    <Link
+                      to="/auctions/$auctionId"
+                      params={{ auctionId: notification.auctionId }}
+                      className="ml-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+                    >
+                      View Auction
+                    </Link>
+                  )}
+                  </div>
                 </div>
               </div>
             ))

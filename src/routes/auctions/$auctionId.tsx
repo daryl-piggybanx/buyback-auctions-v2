@@ -21,6 +21,8 @@ function AuctionDetailPage() {
     auctionId: auctionId as Id<"auctions">
   })
   const currentUser = useQuery(api.auth.loggedInUser)
+  const userProfile = useQuery(api.users.getUserProfile, {})
+  const isBlacklisted = useQuery(api.users.checkIfUserIsBlacklisted, {})
   const placeBid = useMutation(api.auctions.placeBid)
 
   useEffect(() => {
@@ -53,6 +55,19 @@ function AuctionDetailPage() {
 
   const handlePlaceBid = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Check if user has profile
+    if (!userProfile) {
+      toast.error("You must create a profile before bidding")
+      return
+    }
+    
+    // Check if user is blacklisted
+    if (isBlacklisted) {
+      toast.error("Your account has been restricted from placing bids")
+      return
+    }
+    
     const amount = parseFloat(bidAmount)
     
     if (amount <= auctionDetails!.currentBid) {
@@ -72,7 +87,7 @@ function AuctionDetailPage() {
     }
   }
 
-  if (auctionDetails === undefined || currentUser === undefined) {
+  if (auctionDetails === undefined || currentUser === undefined || userProfile === undefined || isBlacklisted === undefined) {
     return (
       <div className="px-4 py-8 mx-auto max-w-4xl">
         <div className="flex justify-center items-center py-12">
@@ -144,11 +159,6 @@ function AuctionDetailPage() {
                   <span className="text-gray-900">${auctionDetails.startingPrice.toLocaleString()}</span>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Auction ID:</span>
-                  <span className="font-mono text-sm text-gray-900">{auctionDetails._id}</span>
-                </div>
-                
                 {auctionDetails.artPiece?.category && (
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-700">Category:</span>
@@ -177,7 +187,7 @@ function AuctionDetailPage() {
             
             <div>
               <div className="space-y-6">
-                {/* Current Bid Section - Similar to admin request page */}
+                {/* Current Bid Section */}
                 <div className="p-4 space-y-3 bg-gray-50 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-medium text-gray-700">Current Winning Bid</span>
@@ -245,8 +255,34 @@ function AuctionDetailPage() {
                   </div>
                 )}
 
+                {/* Profile Required Message */}
+                {!userProfile && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 className="mb-2 font-medium text-blue-900">Profile Required</h3>
+                    <p className="text-sm text-blue-700">
+                      You must create a profile before you can place bids on auctions.
+                    </p>
+                    <button 
+                      onClick={() => void navigate({ to: '/profile' })}
+                      className="px-3 py-1 mt-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                    >
+                      Create Profile
+                    </button>
+                  </div>
+                )}
+
+                {/* Blacklisted User Message */}
+                {userProfile && isBlacklisted && (
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h3 className="mb-2 font-medium text-red-900">Account Restricted</h3>
+                    <p className="text-sm text-red-700">
+                      Your account has been restricted from placing bids. Please contact support if you believe this is an error.
+                    </p>
+                  </div>
+                )}
+
                 {/* Bidding Form */}
-                {!isEnded && !auctionDetails.isLocked && !isOwner && auctionDetails.status === "active" && (
+                {userProfile && !isBlacklisted && !isEnded && !auctionDetails.isLocked && !isOwner && auctionDetails.status === "active" && (
                   <div className="p-4 space-y-4 bg-green-50 rounded-lg border border-green-200">
                     <h4 className="font-medium text-green-900">Place Your Bid</h4>
                     <form onSubmit={handlePlaceBid} className="space-y-3">
