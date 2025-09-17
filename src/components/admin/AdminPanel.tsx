@@ -83,19 +83,6 @@ export function AdminPanel() {
             </div>
           </div>
 
-          <div className="p-6 bg-green-50 rounded-lg border border-green-200">
-            <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-green-800">Ready to Review</p>
-                <p className="text-2xl font-bold text-green-900">{pendingRequests.length > 0 ? 'Yes' : 'No'}</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {pendingRequests.length > 0 && (

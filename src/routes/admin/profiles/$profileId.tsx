@@ -207,7 +207,8 @@ function RouteComponent() {
             {profileDetails.auctions.length > 0 ? (
               <div className="space-y-4">
                 {profileDetails.auctions.slice(0, 5).map((auction: any) => (
-                  <div key={auction._id} className="flex justify-between items-center p-3 rounded border">
+                  <Link to="/auctions/$auctionId" params={{ auctionId: auction._id }}>
+                  <div key={auction._id} className="flex justify-between items-center p-3 rounded border hover:bg-gray-400/50">
                     <div className="flex items-center space-x-3">
                       {auction.imageUrl && (
                         <img 
@@ -230,6 +231,7 @@ function RouteComponent() {
                       <p className="text-sm text-gray-500">{auction.bidCount} bids</p>
                     </div>
                   </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -243,7 +245,8 @@ function RouteComponent() {
             {profileDetails.bids.length > 0 ? (
               <div className="space-y-4">
                 {profileDetails.bids.slice(0, 5).map((bid: any) => (
-                  <div key={bid._id} className="flex justify-between items-center p-3 rounded border">
+                  <Link to="/auctions/$auctionId" params={{ auctionId: bid.auction._id }}>
+                  <div key={bid._id} className="flex justify-between items-center p-3 rounded border hover:bg-gray-400/50">
                     <div className="flex items-center space-x-3">
                       {bid.imageUrl && (
                         <img 
@@ -266,6 +269,7 @@ function RouteComponent() {
                       </span>
                     </div>
                   </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -279,7 +283,8 @@ function RouteComponent() {
             {profileDetails.auctionRequests.length > 0 ? (
               <div className="space-y-4">
                 {profileDetails.auctionRequests.slice(0, 5).map((request: any) => (
-                  <div key={request._id} className="flex justify-between items-center p-3 rounded border">
+                  <Link to="/requests/$requestId" params={{ requestId: request._id }}>
+                  <div key={request._id} className="flex justify-between items-center p-3 rounded border hover:bg-gray-400/50">
                     <div className="flex items-center space-x-3">
                       {request.imageUrl && (
                         <img 
@@ -302,6 +307,7 @@ function RouteComponent() {
                       {request.status}
                     </span>
                   </div>
+                  </Link>
                 ))}
               </div>
             ) : (

@@ -184,7 +184,7 @@ export function UserProfile() {
           <div>
             <h3 className="mb-2 text-lg font-medium text-gray-900">Personal Information</h3>
             <div className="space-y-2">
-              <p><span className="font-medium">Username:</span> @{userProfile?.username}</p>
+              <p><span className="font-medium">Username:</span> {userProfile?.username}</p>
               <p><span className="font-medium">Display Name:</span> {userProfile?.displayName}</p>
               <p><span className="font-medium">Email:</span> {userProfile?.email} <span className="text-xs text-gray-500">(private)</span></p>
               {userProfile?.location && (

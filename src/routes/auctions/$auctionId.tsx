@@ -151,7 +151,7 @@ function AuctionDetailPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="font-medium text-gray-700">Auctioneer:</span>
-                  <span className="text-gray-900">@{auctionDetails.auctioneer}</span>
+                  <span className="text-gray-900">{auctionDetails.auctioneer}</span>
                 </div>
                 
                 <div className="flex justify-between">
