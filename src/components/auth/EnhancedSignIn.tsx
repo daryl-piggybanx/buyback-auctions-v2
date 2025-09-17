@@ -3,6 +3,11 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { toast } from "sonner";
 import { Doc } from "~/convex/_generated/dataModel";
 import { User } from "@auth/core/types";
+import { 
+  LegalDocumentModal, 
+  AgreementStatus, 
+  useLegalAgreements 
+} from "./legal";
 
 type BlacklistEntry = Doc<"blacklist"> & {
   user?: User | null;
@@ -21,6 +26,19 @@ export function EnhancedSignIn() {
   const [resetCode, setResetCode] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [allowEmailNotifications, setAllowEmailNotifications] = useState(false);
+  
+  // Use the legal agreements hook
+  const {
+    showAgreementModal,
+    currentAgreement,
+    agreementsAccepted,
+    allAgreementsAccepted,
+    startAgreementFlow,
+    handleAgreementAccept,
+    handleAgreementDecline,
+    resetAgreements
+  } = useLegalAgreements();
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -35,8 +53,29 @@ export function EnhancedSignIn() {
     }
   };
 
+  const handleSignUpClick = () => {
+    setIsSignUp(true);
+    // Start the agreement flow for sign up
+    startAgreementFlow();
+  };
+
+  const onAgreementDecline = () => {
+    const declined = handleAgreementDecline();
+    if (!declined) {
+      setIsSignUp(false);
+      toast.error("You must accept all agreements to create an account.");
+    }
+  };
+
   const handlePasswordAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if it's sign up and agreements haven't been accepted
+    if (isSignUp && !allAgreementsAccepted) {
+      toast.error("Please accept all agreements before creating an account.");
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -52,7 +91,8 @@ export function EnhancedSignIn() {
       }
       
       if (isSignUp && username) {
-        authData.name = username; // Use username as name for profile creation
+        authData.name = username;
+        authData.emailNotifications = allowEmailNotifications; // Add this line
       }
       
       await signIn("password", authData);
@@ -204,6 +244,14 @@ export function EnhancedSignIn() {
   if (step === "password") {
     return (
       <div className="space-y-4">
+        {/* Legal Document Modal */}
+        <LegalDocumentModal
+          isOpen={showAgreementModal}
+          currentAgreement={currentAgreement}
+          onAccept={handleAgreementAccept}
+          onDecline={onAgreementDecline}
+        />
+        
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">
             {isSignUp ? "Create Account" : "Sign In"}
@@ -215,6 +263,14 @@ export function EnhancedSignIn() {
             ← Back
           </button>
         </div>
+
+        {/* Show agreement status for sign up */}
+        {isSignUp && (
+          <AgreementStatus
+            agreementsAccepted={agreementsAccepted}
+            allAgreementsAccepted={allAgreementsAccepted}
+          />
+        )}
 
         <form onSubmit={handlePasswordAuth} className="space-y-4">
           {isSignUp && (
@@ -267,6 +323,26 @@ export function EnhancedSignIn() {
             />
           </div>
 
+          {isSignUp && (
+            <div>
+              <div className="flex items-center">
+                <input
+                  id="email-notifications"
+                  type="checkbox"
+                  checked={allowEmailNotifications}
+                  onChange={(e) => setAllowEmailNotifications(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 focus:ring-2"
+                />
+                <label htmlFor="email-notifications" className="block ml-2 text-sm text-gray-700">
+                  Allow email notifications for auction updates and platform news
+                </label>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                You can change this preference later in your account settings
+              </p>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading || (isSignUp && !username.trim())}
@@ -278,7 +354,14 @@ export function EnhancedSignIn() {
 
         <div className="space-y-2 text-center">
           <button
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              if (!isSignUp) {
+                handleSignUpClick();
+              } else {
+                setIsSignUp(false);
+                resetAgreements();
+              }
+            }}
             className="text-sm text-blue-600 hover:text-blue-700"
           >
             {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
