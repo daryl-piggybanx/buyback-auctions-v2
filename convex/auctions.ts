@@ -1,8 +1,8 @@
 import { v } from "convex/values";
-import { query, mutation, internalMutation, internalAction, internalQuery } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+// import { Id } from "./_generated/dataModel"; // Not used after refactoring
 
 async function getLoggedInUser(ctx: any) {
   const userId = await getAuthUserId(ctx);
@@ -134,6 +134,14 @@ export const placeBid = mutation({
         endTime: newEndTime,
         isLocked: false,
       });
+
+      // If the end time was extended, schedule a new end event
+      if (newEndTime > auction.endTime) {
+        const delay = Math.max(0, newEndTime - Date.now());
+        await ctx.scheduler.runAfter(delay, internal.auctions.endAuction, {
+          auctionId: args.auctionId,
+        });
+      }
 
       // Notify auctioneer of new bid
       await ctx.db.insert("notifications", {
@@ -285,10 +293,23 @@ export const getAuctionDetails = query({
 
 export const endAuction = internalMutation({
   args: { auctionId: v.id("auctions") },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const auction = await ctx.db.get(args.auctionId);
-    if (!auction || auction.status !== "active") {
-      return;
+    if (!auction) {
+      console.warn(`Scheduled auction end: auction ${args.auctionId} not found`);
+      return null;
+    }
+    
+    if (auction.status !== "active") {
+      console.warn(`Scheduled auction end: auction ${args.auctionId} is not active (${auction.status})`);
+      return null;
+    }
+
+    // Check if time to end (safety check with 1 second tolerance)
+    if (Date.now() < auction.endTime - 1000) {
+      console.warn(`Scheduled auction end: auction ${args.auctionId} scheduled too early`);
+      return null;
     }
 
     if (auction.currentBidderId) {
@@ -353,6 +374,8 @@ export const endAuction = internalMutation({
         priority: "medium",
       });
     }
+    
+    return null;
   },
 });
 
@@ -416,60 +439,6 @@ export const getUserBids = query({
   },
 });
 
-export const checkExpiredAuctions = internalAction({
-  args: {},
-  returns: v.object({ processed: v.number() }),
-  handler: async (ctx) => {
-    const now = Date.now();
-    
-    // Get all active auctions that have passed their end time
-    const expiredAuctions: Id<"auctions">[] = await ctx.runQuery(internal.auctions.getExpiredAuctions, {
-      currentTime: now,
-    });
-
-    // Get all draft auctions that should start
-    const startingAuctions: Id<"auctions">[] = await ctx.runQuery(internal.auctions.getStartingAuctions, {
-      currentTime: now,
-    });
-
-    // Process each expired auction
-    for (const auctionId of expiredAuctions) {
-      await ctx.runMutation(internal.auctions.endAuction, {
-        auctionId,
-      });
-    }
-
-    // Process each starting auction
-    for (const auctionId of startingAuctions) {
-      await ctx.runMutation(internal.auctions.startAuction, {
-        auctionId,
-      });
-    }
-
-    return { processed: expiredAuctions.length + startingAuctions.length };
-  },
-});
-
-export const getExpiredAuctions = internalQuery({
-  args: { currentTime: v.number() },
-  returns: v.array(v.id("auctions")),
-  handler: async (ctx, args) => {
-    const activeAuctions = await ctx.db
-      .query("auctions")
-      .withIndex("by_status", (q) => q.eq("status", "active"))
-      .collect();
-
-    const expiredAuctionIds: Id<"auctions">[] = [];
-    
-    for (const auction of activeAuctions) {
-      if (auction.endTime <= args.currentTime) {
-        expiredAuctionIds.push(auction._id);
-      }
-    }
-
-    return expiredAuctionIds;
-  },
-});
 
 export const archiveAuction = mutation({
   args: {
@@ -571,6 +540,21 @@ export const updateAuction = mutation({
       endTime: args.endTime,
     });
 
+    // Reschedule auction events with new times
+    if (auction.status === "draft" && args.startTime > Date.now()) {
+      // Reschedule start event
+      const startDelay = Math.max(0, args.startTime - Date.now());
+      await ctx.scheduler.runAfter(startDelay, internal.auctions.startAuction, {
+        auctionId: args.auctionId,
+      });
+    } else if (auction.status === "active") {
+      // Reschedule end event
+      const endDelay = Math.max(0, args.endTime - Date.now());
+      await ctx.scheduler.runAfter(endDelay, internal.auctions.endAuction, {
+        auctionId: args.auctionId,
+      });
+    }
+
     return { success: true };
   },
 });
@@ -642,37 +626,36 @@ export const deleteAuction = mutation({
   },
 });
 
-export const getStartingAuctions = internalQuery({
-  args: { currentTime: v.number() },
-  returns: v.array(v.id("auctions")),
-  handler: async (ctx, args) => {
-    const draftAuctions = await ctx.db
-      .query("auctions")
-      .withIndex("by_status", (q) => q.eq("status", "draft"))
-      .collect();
-
-    return draftAuctions
-      .filter(auction => auction.startTime <= args.currentTime)
-      .map(auction => auction._id);
-  },
-});
-
 export const startAuction = internalMutation({
   args: { auctionId: v.id("auctions") },
   returns: v.null(),
   handler: async (ctx, args) => {
     const auction = await ctx.db.get(args.auctionId);
     if (!auction) {
-      throw new Error("Auction not found");
+      console.warn(`Scheduled auction start: auction ${args.auctionId} not found`);
+      return null;
     }
 
     if (auction.status !== "draft") {
-      return; // Already processed or not a draft
+      console.warn(`Scheduled auction start: auction ${args.auctionId} is not in draft status (${auction.status})`);
+      return null; // Already processed or not a draft
+    }
+
+    // Check if it's actually time to start (safety check)
+    if (Date.now() < auction.startTime - 1000) { // 1 second tolerance
+      console.warn(`Scheduled auction start: auction ${args.auctionId} scheduled too early`);
+      return null;
     }
 
     // Update auction status to active
     await ctx.db.patch(args.auctionId, {
       status: "active",
+    });
+
+    // Schedule the end of this auction
+    const delay = Math.max(0, auction.endTime - Date.now());
+    await ctx.scheduler.runAfter(delay, internal.auctions.endAuction, {
+      auctionId: args.auctionId,
     });
 
     // Notify the auctioneer that their auction has started
@@ -685,5 +668,7 @@ export const startAuction = internalMutation({
       isRead: false,
       priority: "high",
     });
+
+    return null;
   },
 });

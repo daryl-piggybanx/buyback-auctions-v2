@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { Id } from "./_generated/dataModel";
+// import { Id } from "./_generated/dataModel"; // Not used after refactoring
 import { internal } from "./_generated/api";
 
 export const createAuctionRequest = mutation({
@@ -261,10 +261,11 @@ export const approveAuctionRequest = mutation({
       throw new Error("Art piece not found");
     }
 
-    const requesterProfile = await ctx.db
-      .query("userProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", request.requesterId))
-      .first();
+    // Note: requesterProfile not used in current logic but kept for potential future use
+    // const requesterProfile = await ctx.db
+    //   .query("userProfiles")
+    //   .withIndex("by_user", (q) => q.eq("userId", request.requesterId))
+    //   .first();
 
     // Create the auction
     const auctionId = await ctx.db.insert("auctions", {
@@ -283,6 +284,21 @@ export const approveAuctionRequest = mutation({
       flaggedCount: 0,
       auctionRequestId: args.requestId,
     });
+
+    // Schedule events based on timing
+    if (args.startTime <= Date.now()) {
+      // Auction should start immediately, schedule end event
+      const delay = Math.max(0, args.endTime - Date.now());
+      await ctx.scheduler.runAfter(delay, internal.auctions.endAuction, {
+        auctionId,
+      });
+    } else {
+      // Schedule auction start
+      const startDelay = Math.max(0, args.startTime - Date.now());
+      await ctx.scheduler.runAfter(startDelay, internal.auctions.startAuction, {
+        auctionId,
+      });
+    }
 
     // Update the request status
     await ctx.db.patch(args.requestId, {

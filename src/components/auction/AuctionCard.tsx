@@ -102,7 +102,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
       <div className="p-4 space-y-3">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 truncate">{auction.title}</h3>
-          <p className="text-sm text-gray-600">by @{auction.auctioneer}</p>
+          <p className="text-sm text-gray-600">by {auction.auctioneer}</p>
         </div>
 
         <div className="space-y-2">

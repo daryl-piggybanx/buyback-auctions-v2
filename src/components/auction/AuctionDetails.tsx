@@ -12,24 +12,58 @@ interface AuctionDetailsProps {
 export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
   const [bidAmount, setBidAmount] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
+  const [localStatus, setLocalStatus] = useState<string | null>(null);
+  const [showStatusChange, setShowStatusChange] = useState(false);
 
   const auctionDetails = useQuery(api.auctions.getAuctionDetails, { auctionId });
   const placeBid = useMutation(api.auctions.placeBid);
   const currentUser = useQuery(api.auth.loggedInUser);
 
+  // update local countdown when auction details change
   useEffect(() => {
     if (auctionDetails) {
-      setTimeLeft(auctionDetails.timeRemaining);
+      const remaining = Math.max(0, auctionDetails.endTime - Date.now());
+      setTimeLeft(remaining);
+      
+      // Detect status changes from server
+      if (localStatus && localStatus !== auctionDetails.status) {
+        setShowStatusChange(true);
+        toast.success(
+          auctionDetails.status === "completed" 
+            ? "🎉 Auction completed! Winner will be notified." 
+            : auctionDetails.status === "ended"
+            ? "⏰ Auction has ended."
+            : `Status changed to ${auctionDetails.status}`
+        );
+        // Hide the status change indicator after 3 seconds
+        setTimeout(() => setShowStatusChange(false), 3000);
+      }
+      setLocalStatus(auctionDetails.status);
     }
-  }, [auctionDetails]);
+  }, [auctionDetails, localStatus]);
 
+  // local countdown timer with automatic status detection
   useEffect(() => {
+    if (!auctionDetails) return;
+
     const timer = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 1000));
+      setTimeLeft(prev => {
+        const newTimeLeft = Math.max(0, prev - 1000);
+        
+        // When countdown reaches 0 and auction is still active locally,
+        // show immediate feedback while waiting for server update
+        if (newTimeLeft === 0 && prev > 0 && auctionDetails.status === "active") {
+          toast.info("⏰ Auction time expired! Processing results...", {
+            duration: 2000,
+          });
+        }
+        
+        return newTimeLeft;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [auctionDetails]);
 
   const formatTime = (ms: number) => {
     const hours = Math.floor(ms / (1000 * 60 * 60));
@@ -55,9 +89,13 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
     }
 
     try {
-      await placeBid({ auctionId, amount });
+      const result = await placeBid({ auctionId, amount });
       toast.success("Bid placed successfully!");
       setBidAmount("");
+      // update local countdown if end time was extended
+      if (result.newEndTime) {
+        setTimeLeft(Math.max(0, result.newEndTime - Date.now()));
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to place bid");
     }
@@ -71,7 +109,7 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
     );
   }
 
-  const isEnded = timeLeft <= 0 || auctionDetails.status !== "active";
+  const isEnded = auctionDetails.status !== "active" || timeLeft < 0;
   const isOwner = currentUser?._id === auctionDetails.auctioneerId;
 
   return (
@@ -128,24 +166,37 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
 
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Status</span>
-              <span className={`text-sm font-medium px-2 py-1 rounded ${
-                auctionDetails.status === "active" ? "bg-green-100 text-green-800" :
-                auctionDetails.status === "completed" ? "bg-blue-100 text-blue-800" :
-                "bg-gray-100 text-gray-800"
-              }`}>
-                {auctionDetails.status === "completed" ? "Sold" : 
-                 auctionDetails.status === "active" ? "Active" : 
-                 auctionDetails.status.charAt(0).toUpperCase() + auctionDetails.status.slice(1)}
-              </span>
+              <div className="flex gap-2 items-center">
+                <span className={`text-sm font-medium px-2 py-1 rounded transition-all ${
+                  auctionDetails.status === "active" ? "bg-green-100 text-green-800" :
+                  auctionDetails.status === "completed" ? "bg-blue-100 text-blue-800" :
+                  auctionDetails.status === "ended" ? "bg-red-100 text-red-800" :
+                  "bg-gray-100 text-gray-800"
+                } ${showStatusChange ? "ring-2 ring-blue-400 ring-opacity-75 animate-pulse" : ""}`}>
+                  {auctionDetails.status === "completed" ? "Sold" : 
+                   auctionDetails.status === "active" ? "Active" : 
+                   auctionDetails.status === "ended" ? "Ended" :
+                   auctionDetails.status.charAt(0).toUpperCase() + auctionDetails.status.slice(1)}
+                </span>
+                {showStatusChange && (
+                  <span className="text-xs font-medium text-blue-600 animate-bounce">
+                    Updated!
+                  </span>
+                )}
+              </div>
             </div>
 
             {auctionDetails.status === "active" && (
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Time Remaining</span>
-                <span className={`text-sm font-medium ${
-                  isEnded ? "text-red-600" : timeLeft < 60 * 60 * 1000 ? "text-orange-600" : "text-gray-900"
+                <span className={`text-sm font-medium transition-all ${
+                  isEnded || timeLeft === 0 ? "text-red-600 font-bold" : 
+                  timeLeft < 60 * 1000 ? "text-red-500 animate-pulse font-bold" : // Last minute
+                  timeLeft < 5 * 60 * 1000 ? "text-orange-600 font-semibold" : // Last 5 minutes
+                  timeLeft < 60 * 60 * 1000 ? "text-orange-500" : // Last hour
+                  "text-gray-900"
                 }`}>
-                  {isEnded ? "AUCTION ENDED" : formatTime(timeLeft)}
+                  {isEnded || timeLeft === 0 ? "AUCTION ENDED" : formatTime(timeLeft)}
                 </span>
               </div>
             )}
@@ -166,8 +217,8 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
             </div>
           )}
 
-          {!isEnded && !auctionDetails.isLocked && !isOwner && auctionDetails.status === "active" && (
-            <form onSubmit={handlePlaceBid} className="space-y-3">
+          {!isEnded && !auctionDetails.isLocked && !isOwner && auctionDetails.status === "active" && timeLeft > 0 && (
+            <form onSubmit={(e) => { handlePlaceBid(e).catch(console.error); }} className="space-y-3">
               <input
                 type="number"
                 value={bidAmount}
@@ -175,16 +226,31 @@ export function AuctionDetails({ auctionId, onBack }: AuctionDetailsProps) {
                 placeholder={`Minimum bid: $${(auctionDetails.currentBid + 1).toLocaleString()}`}
                 min={auctionDetails.currentBid + 1}
                 step="1"
-                className="px-4 py-3 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`px-4 py-3 w-full rounded-md border focus:outline-none focus:ring-2 transition-colors ${
+                  timeLeft < 60 * 1000 ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+                }`}
                 required
               />
               <button
                 type="submit"
-                className="px-4 py-3 w-full font-medium text-white bg-green-600 rounded-md transition-colors hover:bg-green-700"
+                className={`px-4 py-3 w-full font-medium text-white rounded-md transition-colors ${
+                  timeLeft < 60 * 1000 
+                    ? "bg-red-600 hover:bg-red-700 animate-pulse" 
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
               >
-                Place Bid
+                {timeLeft < 60 * 1000 ? "🔥 Quick Bid!" : "Place Bid"}
               </button>
             </form>
+          )}
+
+          {(isEnded || timeLeft === 0) && auctionDetails.status === "active" && (
+            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h3 className="mb-2 font-medium text-yellow-900">⏰ Auction Time Expired</h3>
+              <p className="text-sm text-yellow-700">
+                The auction time has ended. Results are being processed...
+              </p>
+            </div>
           )}
 
           <div className="pt-4 mt-6 border-t">

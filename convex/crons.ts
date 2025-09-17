@@ -1,14 +1,8 @@
 import { cronJobs } from "convex/server";
-import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Check for expired auctions every minute
-crons.interval(
-  "check expired auctions",
-  { minutes: 1 },
-  internal.auctions.checkExpiredAuctions,
-  {}
-);
+// No more expensive polling crons - using scheduled functions instead
+// Individual auctions now schedule their own start/end events
 
 export default crons;
