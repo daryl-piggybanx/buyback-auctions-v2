@@ -1,33 +1,53 @@
+import { useState } from "react";
 import { useQuery, useAction } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { toast } from "sonner";
 
 export function DuplicateUsersManager() {
-  const duplicateUsers = useQuery(api.userManagement.findDuplicateUsers);
+  const [shouldCheckDuplicates, setShouldCheckDuplicates] = useState(false);
+  
+  const duplicateUsers = useQuery(
+    api.userManagement.findDuplicateUsers, 
+    shouldCheckDuplicates ? {} : "skip"
+  );
   const cleanupDuplicates = useAction(api.userManagement.triggerCleanupDuplicateUsers);
+
+  const handleCheckDuplicates = () => {
+    setShouldCheckDuplicates(true);
+  };
 
   const handleCleanupDuplicates = async (email: string) => {
     try {
       const result = await cleanupDuplicates({ email });
       toast.success(result.message);
+      // Refresh the duplicate users list after cleanup
+      setShouldCheckDuplicates(false);
+      setTimeout(() => setShouldCheckDuplicates(true), 100);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to cleanup duplicates");
     }
   };
 
-  if (duplicateUsers === undefined) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="mb-6 text-2xl font-bold text-gray-900">User Management - Duplicate Users</h2>
+      <div className="flex justify-start items-center mb-6">
+        <button
+          onClick={handleCheckDuplicates}
+          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md transition-colors hover:bg-green-700"
+        >
+          Check for Duplicates
+        </button>
+      </div>
       
-      {duplicateUsers.length === 0 ? (
+      {!shouldCheckDuplicates ? (
+        <div className="py-8 text-center">
+          <p className="text-gray-500">Click "Check for Duplicates" to scan for duplicate user accounts.</p>
+        </div>
+      ) : duplicateUsers === undefined ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
+        </div>
+      ) : duplicateUsers.length === 0 ? (
         <div className="py-8 text-center">
           <p className="text-gray-500">No duplicate users found.</p>
         </div>
