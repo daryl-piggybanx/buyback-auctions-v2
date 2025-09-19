@@ -65,7 +65,6 @@ export const createProfileAfterSignup = mutation({
     return await ctx.db.insert("userProfiles", {
       userId,
       username: args.username,
-      displayName: args.username, // Use username as display name initially
       totalBids: 0,
       totalWins: 0,
       totalAuctions: 0,
@@ -81,7 +80,6 @@ export const createProfileAfterSignup = mutation({
 export const createUserProfile = mutation({
   args: {
     username: v.string(),
-    displayName: v.string(),
     bio: v.optional(v.string()),
     location: v.optional(v.string()),
   },
@@ -116,7 +114,6 @@ export const createUserProfile = mutation({
     return await ctx.db.insert("userProfiles", {
       userId,
       username: args.username,
-      displayName: args.displayName,
       bio: args.bio,
       location: args.location,
       totalBids: 0,

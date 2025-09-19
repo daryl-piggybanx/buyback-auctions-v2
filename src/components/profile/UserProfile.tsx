@@ -7,7 +7,6 @@ import { ProfileSetup } from "~/components/profile/ProfileSetup";
 export function UserProfile() {
   const [isCreating, setIsCreating] = useState(false);
   const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -38,7 +37,7 @@ export function UserProfile() {
   const handleCreateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (usernameError || !username || !displayName) {
+    if (usernameError || !username) {
       toast.error("Please fix all errors before submitting");
       return;
     }
@@ -46,14 +45,12 @@ export function UserProfile() {
     try {
       await createUserProfile({
         username,
-        displayName,
         bio: bio || undefined,
         location: location || undefined,
       });
       
       setIsCreating(false);
       setUsername("");
-      setDisplayName("");
       setBio("");
       setLocation("");
       toast.success("Profile created successfully!");
@@ -87,7 +84,7 @@ export function UserProfile() {
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="mb-6 text-2xl font-bold text-gray-900">Create Profile</h2>
           
-          <form onSubmit={handleCreateProfile} className="space-y-4">
+          <form onSubmit={(e) => { handleCreateProfile(e).catch(console.error); }} className="space-y-4">
             <div>
               <label className="block mb-1 text-sm font-medium text-gray-700">
                 Username * <span className="text-xs text-gray-500">(visible to other users)</span>
@@ -113,19 +110,6 @@ export function UserProfile() {
               )}
             </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Display Name *
-              </label>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Your full name or preferred display name"
-                required
-              />
-            </div>
 
             <div>
               <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -156,7 +140,7 @@ export function UserProfile() {
             <div className="flex gap-4">
               <button
                 type="submit"
-                disabled={!!usernameError || !username || !displayName}
+                disabled={!!usernameError || !username}
                 className="flex-1 px-4 py-2 font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Profile
@@ -185,7 +169,6 @@ export function UserProfile() {
             <h3 className="mb-2 text-lg font-medium text-gray-900">Personal Information</h3>
             <div className="space-y-2">
               <p><span className="font-medium">Username:</span> {userProfile?.username}</p>
-              <p><span className="font-medium">Display Name:</span> {userProfile?.displayName}</p>
               <p><span className="font-medium">Email:</span> {userProfile?.email} <span className="text-xs text-gray-500">(private)</span></p>
               {userProfile?.location && (
                 <p><span className="font-medium">Location:</span> {userProfile.location}</p>

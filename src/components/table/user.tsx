@@ -127,14 +127,6 @@ const UserTable: React.FC<UserTableProps> = ({
           },
         },
         {
-          accessorKey: "displayName",
-          header: "Display Name",
-          cell: ({ row }) => {
-            const user = row.original as User;
-            return user.profile?.displayName || "N/A";
-          },
-        },
-        {
           accessorKey: "isAdmin",
           header: "Role",
           cell: ({ row }) => {

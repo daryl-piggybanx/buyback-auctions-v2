@@ -57,14 +57,6 @@ const ProfilesTable: React.FC<ProfilesTableProps> = ({ data }) => {
       },
     },
     {
-      accessorKey: "displayName",
-      header: "Display Name",
-      cell: ({ row }) => {
-        const profile = row.original;
-        return profile.displayName || "N/A";
-      },
-    },
-    {
       accessorKey: "email",
       header: "Email",
       cell: ({ row }) => {

@@ -85,7 +85,7 @@ const applicationTables = {
   userProfiles: defineTable({
     userId: v.id("users"),
     username: v.string(),
-    displayName: v.string(),
+    displayName: v.optional(v.string()), // Temporarily optional for migration
     bio: v.optional(v.string()),
     location: v.optional(v.string()),
     totalBids: v.number(),

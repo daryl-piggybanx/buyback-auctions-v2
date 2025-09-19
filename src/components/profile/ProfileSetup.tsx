@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 export function ProfileSetup() {
   const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -32,7 +31,7 @@ export function ProfileSetup() {
   const handleCreateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (usernameError || !username || !displayName) {
+    if (usernameError || !username) {
       toast.error("Please fix all errors before submitting");
       return;
     }
@@ -40,7 +39,6 @@ export function ProfileSetup() {
     try {
       await createUserProfile({
         username,
-        displayName,
         bio: bio || undefined,
         location: location || undefined,
       });
@@ -59,7 +57,7 @@ export function ProfileSetup() {
           Welcome! Please complete your profile to start participating in auctions.
         </p>
         
-        <form onSubmit={handleCreateProfile} className="space-y-4">
+        <form onSubmit={(e) => { handleCreateProfile(e).catch(console.error); }} className="space-y-4">
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
               Username * <span className="text-xs text-gray-500">(visible to other users)</span>
@@ -85,19 +83,6 @@ export function ProfileSetup() {
             )}
           </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Display Name *
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Your full name or preferred display name"
-              required
-            />
-          </div>
 
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -127,7 +112,7 @@ export function ProfileSetup() {
 
           <button
             type="submit"
-            disabled={!!usernameError || !username || !displayName}
+            disabled={!!usernameError || !username}
             className="px-4 py-2 w-full font-medium text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Complete Profile

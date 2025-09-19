@@ -111,10 +111,6 @@ function RouteComponent() {
                   <p className="text-lg">{profileDetails.username}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Display Name</label>
-                  <p className="text-lg">{profileDetails.displayName}</p>
-                </div>
-                <div>
                   <label className="text-sm font-medium text-gray-500">Email</label>
                   <p className="flex items-center text-lg">
                     <Mail className="mr-2 w-4 h-4" />

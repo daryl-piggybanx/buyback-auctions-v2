@@ -46,12 +46,10 @@ export const createOrUpdateProfileFromAuth = mutation({
       const baseUsername = user.email.split('@')[0];
       const randomSuffix = Math.random().toString(36).substr(2, 4);
       const username = `${baseUsername}_${randomSuffix}`;
-      const displayName = user.name || baseUsername;
 
       return await ctx.db.insert("userProfiles", {
         userId,
         username,
-        displayName,
         totalBids: 0,
         totalWins: 0,
         totalAuctions: 0,
