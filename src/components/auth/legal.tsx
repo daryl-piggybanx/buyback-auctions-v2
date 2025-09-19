@@ -71,7 +71,7 @@ export const LegalDocumentModal: React.FC<LegalDocumentModalProps> = ({
   const { title, pdfPath, fileName } = getAgreementDetails(currentAgreement);
   
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onDecline(); }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden text-white">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">

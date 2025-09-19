@@ -1,16 +1,26 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { Link } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
 
 export function NotificationCenter() {
   const notifications = useQuery(api.notifications.getUserNotifications);
   const markRead = useMutation(api.notifications.markNotificationRead);
+  const deleteNotification = useMutation(api.notifications.deleteNotification);
 
   const handleMarkRead = async (notificationId: string) => {
     try {
       await markRead({ notificationId: notificationId as any });
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const handleDelete = async (notificationId: string) => {
+    try {
+      await deleteNotification({ notificationId: notificationId as any });
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
     }
   };
 
@@ -82,6 +92,13 @@ export function NotificationCenter() {
                     </Link>
                   )}
                   </div>
+
+                  <button
+                    onClick={() => handleDelete(notification._id)}
+                    className="ml-4 text-sm font-medium text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))

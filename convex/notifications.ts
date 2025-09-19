@@ -78,6 +78,15 @@ export const markNotificationRead = mutation({
   },
 });
 
+export const deleteNotification = mutation({
+  args: { notificationId: v.id("notifications") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.notificationId);
+    return null;
+  },
+});
+
 export const sendWinnerEmail = internalAction({
   args: { auctionId: v.id("auctions") },
   handler: async (ctx, args) => {

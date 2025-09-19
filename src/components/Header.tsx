@@ -116,7 +116,7 @@ export function Header() {
           </Authenticated>
           <Unauthenticated>
             <div className="text-sm text-gray-600">
-              <span className="mr-2">👁️ Viewing anonymously</span>
+              <span className="mr-2">Viewing anonymously</span>
               <Link 
                 to="/auth"
                 className="font-medium text-blue-600 hover:text-blue-700"
